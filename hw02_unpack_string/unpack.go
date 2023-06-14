@@ -69,20 +69,19 @@ func getNextItem(s string, index int) (*ResultData, error) {
 	if isDigit(item1) && isDigit(item2) || !isSlash(item1) && isDigit(item2) && isDigit(item3) {
 		return nil, ErrInvalidString
 	}
-	if isSlash(item1) && isDigit(item3) {
+	switch {
+	case isSlash(item1) && isDigit(item3):
 		return NewResultData(item2, item3, index+3), nil
-	} else if isSlash(item1) && isSlash(item2) {
+	case isSlash(item1) && isSlash(item2):
 		return NewResultData(item1, '1', index+2), nil
-	} else if isSlash(item1) && isDigit(item2) {
+	case isSlash(item1) && isDigit(item2):
 		if item3 != 0 && isDigit(item3) {
 			return NewResultData(item2, item3, index+3), nil
 		}
 		return NewResultData(item2, '1', index+2), nil
-	} else if !isDigit(item1) && isDigit(item2) {
+	case !isDigit(item1) && isDigit(item2):
 		return NewResultData(item1, item2, index+2), nil
-	} else if !isDigit(item1) {
+	default:
 		return NewResultData(item1, '1', index+1), nil
 	}
-	return NewResultData(item1, '1', index+1), nil
-
 }
