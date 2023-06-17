@@ -36,7 +36,7 @@ func Unpack(s string) (string, error) {
 	item.currentPosition = -1
 	isPrintDigit := false
 	for i, currentRune := range s {
-		item.currentPosition += 1
+		item.currentPosition++
 		if (i == 0 || isPrintDigit) && isDigit(currentRune) {
 			return "", ErrInvalidString
 		}
