@@ -9,79 +9,70 @@ import (
 var ErrInvalidString = errors.New("invalid string")
 
 type ResultData struct {
-	s               string
+	printRune       rune
+	prevRune        rune
 	countRepeat     int
 	currentPosition int
 }
 
-func isDigit(r uint8) bool {
+func isDigit(r rune) bool {
 	return r >= 48 && r <= 57
 }
 
-func isSlash(r uint8) bool {
-	return r == 92
+func isSlash(r rune) bool {
+	return r == '\\'
 }
 
-func NewResultData(item, cnt uint8, position int) *ResultData {
-	countRepeat, _ := strconv.Atoi(string(cnt))
-
-	return &ResultData{
-		s:               string(item),
-		countRepeat:     countRepeat,
-		currentPosition: position,
-	}
+func isPrint(r rune) bool {
+	return !isSlash(r) && !isDigit(r)
 }
 
 func Unpack(s string) (string, error) {
 	if s == "" {
 		return "", nil
 	}
-	if isDigit(s[0]) {
-		return "", ErrInvalidString
-	}
-	var b strings.Builder
-	currentIndex := 0
-	for {
-		resultData, err := getNextItem(s, currentIndex)
-		if err != nil {
-			return "", err
+	var result strings.Builder
+	item := ResultData{}
+	item.currentPosition = -1
+	isPrintDigit := false
+	for i, currentRune := range s {
+		item.currentPosition += 1
+		if (i == 0 || isPrintDigit) && isDigit(currentRune) {
+			return "", ErrInvalidString
 		}
-		currentIndex = resultData.currentPosition
-		b.WriteString(strings.Repeat(resultData.s, resultData.countRepeat))
-		if len(s)-1 < currentIndex {
-			break
-		}
-	}
-	println(b.String())
 
-	return b.String(), nil
+		if item.currentPosition == 0 && isSlash(currentRune) {
+			item.prevRune = currentRune
+			continue
+		}
+		isPrintDigit = false
+		switch {
+		case item.printRune != 0 && isDigit(currentRune) && !isSlash(item.prevRune):
+			item.countRepeat, _ = strconv.Atoi(string(currentRune))
+			isPrintDigit = true
+			addItem(&result, &item)
+		case isPrint(currentRune) || isSlash(item.prevRune):
+			addItem(&result, &item)
+			item.printRune = currentRune
+			item.countRepeat = 1
+		}
+	}
+	addItem(&result, &item)
+	return result.String(), nil
 }
 
-func getNextItem(s string, index int) (*ResultData, error) {
-	var item1, item2, item3 uint8
-	item1 = s[index]
-	if len(s)-1 >= index+1 {
-		item2 = s[index+1]
+func addItem(s *strings.Builder, r *ResultData) {
+	if r.printRune == 0 {
+		return
 	}
-	if len(s)-1 >= index+2 {
-		item3 = s[index+2]
-	}
-	if isDigit(item1) && isDigit(item2) || !isSlash(item1) && isDigit(item2) && isDigit(item3) {
-		return nil, ErrInvalidString
-	}
-	switch {
-	case isSlash(item1) && isDigit(item3):
-		return NewResultData(item2, item3, index+3), nil
-	case isSlash(item1) && isSlash(item2):
-		return NewResultData(item1, '1', index+2), nil
-	case isSlash(item1) && isDigit(item2):
-		if item3 != 0 && isDigit(item3) {
-			return NewResultData(item2, item3, index+3), nil
-		}
-		return NewResultData(item2, '1', index+2), nil
-	case !isDigit(item1) && isDigit(item2):
-		return NewResultData(item1, item2, index+2), nil
-	default:
-		return NewResultData(item1, '1', index+1), nil
-	}
+	t := strings.Repeat(string(r.printRune), r.countRepeat)
+	s.WriteString(t)
+	clearResult(r)
+}
+
+func clearResult(r *ResultData) {
+	r.currentPosition = -1
+	r.countRepeat = 1
+	r.printRune = 0
+	r.prevRune = 0
 }
