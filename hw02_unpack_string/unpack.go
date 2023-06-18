@@ -8,13 +8,6 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-type ResultData struct {
-	printRune       rune
-	prevRune        rune
-	countRepeat     int
-	currentPosition int
-}
-
 type Data struct {
 	prevRune      rune
 	printString   string
