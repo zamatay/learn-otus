@@ -15,6 +15,12 @@ type ResultData struct {
 	currentPosition int
 }
 
+type Data struct {
+	prevRune      rune
+	printString   string
+	stringBuilder strings.Builder
+}
+
 func isDigit(r rune) bool {
 	return r >= 48 && r <= 57
 }
@@ -31,48 +37,49 @@ func Unpack(s string) (string, error) {
 	if s == "" {
 		return "", nil
 	}
-	var result strings.Builder
-	item := ResultData{}
-	item.currentPosition = -1
-	isPrintDigit := false
-	for i, currentRune := range s {
-		item.currentPosition++
-		if (i == 0 || isPrintDigit) && isDigit(currentRune) {
+	var result Data
+	for _, currentRune := range s {
+		if !getNextItem(currentRune, &result) {
 			return "", ErrInvalidString
 		}
-
-		if item.currentPosition == 0 && isSlash(currentRune) {
-			item.prevRune = currentRune
-			continue
-		}
-		isPrintDigit = false
-		switch {
-		case item.printRune != 0 && isDigit(currentRune) && !isSlash(item.prevRune):
-			item.countRepeat, _ = strconv.Atoi(string(currentRune))
-			isPrintDigit = true
-			addItem(&result, &item)
-		case isPrint(currentRune) || isSlash(item.prevRune):
-			addItem(&result, &item)
-			item.printRune = currentRune
-			item.countRepeat = 1
-		}
 	}
-	addItem(&result, &item)
-	return result.String(), nil
+	addItem(1, &result)
+	return result.stringBuilder.String(), nil
 }
 
-func addItem(s *strings.Builder, r *ResultData) {
-	if r.printRune == 0 {
+func getNextItem(currentRune int32, result *Data) bool {
+	switch {
+	case isSlash(currentRune) && !isSlash(result.prevRune):
+	case (isSlash(currentRune) || isDigit(currentRune)) && isSlash(result.prevRune):
+		count := 1
+		if isDigit(currentRune) && !isSlash(result.prevRune) {
+			count, _ = strconv.Atoi(string(currentRune))
+		}
+		addItem(count, result)
+		result.printString = string(currentRune)
+		return true
+	case isDigit(currentRune) && result.printString != "":
+		count, _ := strconv.Atoi(string(currentRune))
+		addItem(count, result)
+	case isPrint(currentRune):
+		addItem(1, result)
+		result.printString = string(currentRune)
+	default:
+		return false
+	}
+	result.prevRune = currentRune
+	return true
+}
+
+func addItem(count int, d *Data) {
+	if d.printString == "" {
 		return
 	}
-	t := strings.Repeat(string(r.printRune), r.countRepeat)
-	s.WriteString(t)
-	clearResult(r)
+	t := strings.Repeat(d.printString, count)
+	d.stringBuilder.WriteString(t)
+	clearResult(d)
 }
 
-func clearResult(r *ResultData) {
-	r.currentPosition = -1
-	r.countRepeat = 1
-	r.printRune = 0
-	r.prevRune = 0
+func clearResult(d *Data) {
+	d.printString, d.prevRune = "", 0
 }
