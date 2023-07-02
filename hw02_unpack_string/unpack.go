@@ -2,9 +2,9 @@ package hw02unpackstring
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -46,13 +46,19 @@ func Unpack(s string) (string, error) {
 	if s == "" {
 		return "", nil
 	}
-	fmt.Println(s)
 	var r Data
-	for _, currentRune := range s {
+	for index, currentRune := range s {
+		if index == 0 && isDigit(currentRune) {
+			return "", ErrInvalidString
+		}
+		if index == utf8.RuneCountInString(s)-1 && isSlash(currentRune) && !isSlash(r.prevRune) {
+			return "", ErrInvalidString
+		}
 		if !r.getNextItem(currentRune) {
 			return "", ErrInvalidString
 		}
 	}
+	r.leftShift()
 	r.printValue(0)
 	r.printValue(0)
 	return r.stringBuilder.String(), nil
@@ -63,67 +69,65 @@ func (r *Data) setPrevRune(currentRune rune) {
 	r.prevRune = currentRune
 }
 
-func (r *Data) checkLastItemIsNotValid() bool {
-	return (isDigit(r.prevRune) && r.prev2Rune == 0) || (isDigit(r.prevRune) && isDigit(r.prev2Rune)) || (isSlash(r.prevRune) && isSlash(r.prev2Rune))
+func (r *Data) checkItemIsNotValid(currentRune rune) bool {
+	return isDigit(r.prev2Rune) && isDigit(r.prevRune) || !isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune)
 }
 
-func (r *Data) addItem(item rune, count_rune interface{}) {
-	if item == 0 {
-		return
+func (r *Data) addItem(item, currentRune rune, count interface{}, countShift int) {
+	if item != 0 {
+		cnt := parseValue(count)
+		t := strings.Repeat(string(item), cnt)
+		r.stringBuilder.WriteString(t)
 	}
-	count := parseValue(count_rune)
 
-	t := strings.Repeat(string(item), count)
-	// fmt.Println(t)
-	r.stringBuilder.WriteString(t)
-}
-
-func (r *Data) shift(item rune, isTwo bool) {
-	if r.prev2Rune == 0 && item == 0 && r.prevRune != 0 {
-		r.prev2Rune = r.prevRune
+	switch countShift {
+	case 1:
+		r.prev2Rune, r.prevRune = r.prevRune, currentRune
+	case 2:
+		r.prev2Rune, r.prevRune = 0, currentRune
+	case 3:
+		r.prev2Rune, r.prevRune = 0, 0
 	}
-	if isTwo {
-		r.prev2Rune = 0
-	} else {
-		r.prev2Rune = r.prevRune
-	}
-	r.prevRune = item
 }
 
 func (r *Data) getNextItem(currentRune int32) bool {
+	if r.checkItemIsNotValid(currentRune) {
+		return false
+	}
 	if r.prevRune > 0 && r.prev2Rune > 0 {
 		r.printValue(currentRune)
 	} else {
 		r.setPrevRune(currentRune)
 	}
-	return true //!r.checkLastItemIsNotValid()
+	return true
 }
 
 func (r *Data) getItems(currentRune rune) (rune, rune, rune) {
-	if r.prev2Rune != 0 {
+	switch {
+	case r.prev2Rune != 0:
 		return r.prev2Rune, r.prevRune, currentRune
-	} else if r.prevRune != 0 {
+	case r.prevRune != 0:
 		return r.prevRune, currentRune, 0
-	} else {
+	default:
 		return currentRune, 0, 0
 	}
+}
+
+func (r *Data) leftShift() {
+	r.prev2Rune, r.prevRune, _ = r.getItems(0)
 }
 
 func (r *Data) printValue(currentRune rune) {
 	// если
 	item1, item2, item3 := r.getItems(currentRune)
-	if isPrint(item1) && !isDigit(item2) {
-		r.addItem(item1, 1)
-		r.shift(item3, false)
-	} else if isPrint(item1) && isDigit(item2) {
-		r.addItem(item1, item2)
-		r.shift(item3, true)
-	} else if isSlash(item1) && !isPrint(item2) && isDigit(item3) {
-		r.addItem(item2, item3)
-		r.shift(item3, true)
-	} else if isSlash(item1) && isDigit(item2) {
-		r.addItem(item2, 1)
-		r.shift(item3, true)
+	switch {
+	case isPrint(item1) && !isDigit(item2):
+		r.addItem(item1, currentRune, 1, 1)
+	case isPrint(item1) && isDigit(item2):
+		r.addItem(item1, currentRune, item2, 2)
+	case isSlash(item1) && !isPrint(item2) && isDigit(item3):
+		r.addItem(item2, currentRune, item3, 3)
+	case isSlash(item1) && !isPrint(item2):
+		r.addItem(item2, currentRune, 1, 2)
 	}
-
 }
