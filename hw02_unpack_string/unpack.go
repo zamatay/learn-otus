@@ -129,5 +129,7 @@ func (r *Data) printValue(currentRune rune) {
 		r.addItem(item2, currentRune, item3, 3)
 	case isSlash(item1) && !isPrint(item2):
 		r.addItem(item2, currentRune, 1, 2)
+	default:
+		return
 	}
 }
