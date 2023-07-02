@@ -16,56 +16,6 @@ type Data struct {
 	stringBuilder strings.Builder
 }
 
-func parseValue(countRune interface{}) int {
-	switch v := countRune.(type) {
-	case int:
-		return v
-	case rune:
-		count, _ := strconv.Atoi(string(v))
-		return count
-	case string:
-		count, _ := strconv.Atoi(v)
-		return count
-	default:
-		return 0
-	}
-}
-
-func isDigit(r rune) bool {
-	return r >= 48 && r <= 57
-}
-
-func isSlash(r rune) bool {
-	return r == '\\'
-}
-
-func isPrint(r rune) bool {
-	return !isSlash(r) && !isDigit(r) && r != 0
-}
-
-func Unpack(s string) (string, error) {
-	if s == "" {
-		return "", nil
-	}
-	var r Data
-	fmt.Println(s)
-	for index, currentRune := range s {
-		if index == 0 && isDigit(currentRune) {
-			return "", ErrInvalidString
-		}
-		if index == utf8.RuneCountInString(s)-1 && isSlash(currentRune) && !isSlash(r.prevRune) {
-			return "", ErrInvalidString
-		}
-		if !r.getNextItem(currentRune) {
-			return "", ErrInvalidString
-		}
-	}
-	r.leftShift()
-	r.printValue(0)
-	r.printValue(0)
-	return r.stringBuilder.String(), nil
-}
-
 func (r *Data) setPrevRune(currentRune rune) {
 	r.prev2Rune = r.prevRune
 	r.prevRune = currentRune
@@ -131,4 +81,54 @@ func (r *Data) printValue(currentRune rune) {
 
 func (r *Data) leftShift() {
 	r.prev2Rune, r.prevRune, _ = r.getItems(0)
+}
+
+func parseValue(countRune interface{}) int {
+	switch v := countRune.(type) {
+	case int:
+		return v
+	case rune:
+		count, _ := strconv.Atoi(string(v))
+		return count
+	case string:
+		count, _ := strconv.Atoi(v)
+		return count
+	default:
+		return 0
+	}
+}
+
+func isDigit(r rune) bool {
+	return r >= 48 && r <= 57
+}
+
+func isSlash(r rune) bool {
+	return r == '\\'
+}
+
+func isPrint(r rune) bool {
+	return !isSlash(r) && !isDigit(r) && r != 0
+}
+
+func Unpack(s string) (string, error) {
+	if s == "" {
+		return "", nil
+	}
+	var r Data
+	fmt.Println(s)
+	for index, currentRune := range s {
+		if index == 0 && isDigit(currentRune) {
+			return "", ErrInvalidString
+		}
+		if index == utf8.RuneCountInString(s)-1 && isSlash(currentRune) && !isSlash(r.prevRune) {
+			return "", ErrInvalidString
+		}
+		if !r.getNextItem(currentRune) {
+			return "", ErrInvalidString
+		}
+	}
+	r.leftShift()
+	r.printValue(0)
+	r.printValue(0)
+	return r.stringBuilder.String(), nil
 }
