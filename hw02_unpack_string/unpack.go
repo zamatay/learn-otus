@@ -118,7 +118,6 @@ func (r *Data) leftShift() {
 }
 
 func (r *Data) printValue(currentRune rune) {
-	// если
 	item1, item2, item3 := r.getItems(currentRune)
 	switch {
 	case isPrint(item1) && !isDigit(item2):
@@ -129,7 +128,5 @@ func (r *Data) printValue(currentRune rune) {
 		r.addItem(item2, currentRune, item3, 3)
 	case isSlash(item1) && !isPrint(item2):
 		r.addItem(item2, currentRune, 1, 2)
-	default:
-		return
 	}
 }
