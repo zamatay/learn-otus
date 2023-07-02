@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -47,6 +48,7 @@ func Unpack(s string) (string, error) {
 		return "", nil
 	}
 	var r Data
+	fmt.Println(s)
 	for index, currentRune := range s {
 		if index == 0 && isDigit(currentRune) {
 			return "", ErrInvalidString
