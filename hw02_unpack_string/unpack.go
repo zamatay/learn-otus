@@ -121,14 +121,13 @@ func (r *Data) leftShift() {
 
 func (r *Data) printValue(currentRune rune) {
 	item1, item2, item3 := r.getItems(currentRune)
-	switch {
-	case isPrint(item1) && !isDigit(item2):
+	if isPrint(item1) && !isDigit(item2) {
 		r.addItem(item1, currentRune, 1, 1)
-	case isPrint(item1) && isDigit(item2):
-		r.addItem(item1, currentRune, item2, 2)
-	case isSlash(item1) && !isPrint(item2) && isDigit(item3):
+	} else if isPrint(item1) && isDigit(item2) {
+		r.addItem(item1, currentRune, 1, 1)
+	} else if isSlash(item1) && !isPrint(item2) && isDigit(item3) {
 		r.addItem(item2, currentRune, item3, 3)
-	case isSlash(item1) && !isPrint(item2):
+	} else if isSlash(item1) && !isPrint(item2) {
 		r.addItem(item2, currentRune, 1, 2)
 	}
 }
