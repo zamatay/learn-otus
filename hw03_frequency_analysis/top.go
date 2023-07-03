@@ -20,7 +20,7 @@ func Top10(text string) []string {
 			m[strings.ToLower(v)]++
 		}
 	}
-	slData := make([]data, len(m))
+	slData := make([]data, len(m), 0)
 	for i, v := range m {
 		slData = append(slData, data{i, v})
 	}
