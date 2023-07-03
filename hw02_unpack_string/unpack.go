@@ -69,7 +69,7 @@ func (r *Data) setPrevRune(currentRune rune) {
 	r.prevRune = currentRune
 }
 
-func (r *Data) checkItemIsNotValid(currentRune rune) bool {
+func (r *Data) checkItem(currentRune rune) bool {
 	return isDigit(r.prev2Rune) && isDigit(r.prevRune) || !isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune)
 }
 
@@ -91,7 +91,7 @@ func (r *Data) addItem(item, currentRune rune, count interface{}, countShift int
 }
 
 func (r *Data) getNextItem(currentRune int32) bool {
-	if r.checkItemIsNotValid(currentRune) == true {
+	if r.checkItem(currentRune) == true {
 		return false
 	}
 	if r.prevRune > 0 && r.prev2Rune > 0 {
