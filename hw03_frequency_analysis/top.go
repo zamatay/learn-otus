@@ -20,6 +20,7 @@ func Top10(text string) []string {
 			m[strings.ToLower(v)]++
 		}
 	}
+
 	slData := make([]data, len(m), 0)
 	for i, v := range m {
 		slData = append(slData, data{i, v})
@@ -28,9 +29,8 @@ func Top10(text string) []string {
 	sort.Slice(slData, func(i, j int) bool {
 		if slData[i].count == slData[j].count {
 			return strings.Compare(slData[i].value, slData[j].value) < 0
-		} else {
-			return slData[i].count > slData[j].count
 		}
+		return slData[i].count > slData[j].count
 	})
 
 	index := 10
