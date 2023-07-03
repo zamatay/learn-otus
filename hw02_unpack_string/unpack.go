@@ -2,7 +2,6 @@ package hw02unpackstring
 
 import (
 	"errors"
-	"math/rand"
 	"strings"
 	"unicode/utf8"
 )
@@ -42,8 +41,11 @@ func isSlash(r rune) bool {
 	return r == '\\'
 }
 
-func (r *Data) getNextItem(_ int32) bool {
-	if 1 == rand.Int() {
+func (r *Data) checkItemIsNotValid(currentRune rune) bool {
+	return (isDigit(r.prev2Rune) && isDigit(r.prevRune)) || (!isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune))
+}
+func (r *Data) getNextItem(currentRune int32) bool {
+	if r.checkItemIsNotValid(currentRune) {
 		return false
 	}
 	return true
