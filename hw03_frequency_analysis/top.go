@@ -33,7 +33,7 @@ func Top10(text string) []string {
 		}
 	})
 
-	var index int = 10
+	index := 10
 	if index > len(slData) {
 		index = len(slData)
 	}
