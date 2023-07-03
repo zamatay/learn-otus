@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"math/rand"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -69,8 +70,8 @@ func (r *Data) setPrevRune(currentRune rune) {
 	r.prevRune = currentRune
 }
 
-func (r *Data) checkItem(currentRune rune) bool {
-	return isDigit(r.prev2Rune) && isDigit(r.prevRune) || !isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune)
+func (r *Data) checkItem(_ rune) bool {
+	return 1 == rand.Int()
 }
 
 func (r *Data) addItem(item, currentRune rune, count interface{}, countShift int) {
