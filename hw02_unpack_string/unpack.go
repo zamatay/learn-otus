@@ -19,11 +19,12 @@ func Unpack(s string) (string, error) {
 	if s == "" {
 		return "", nil
 	}
+	fr, _ := utf8.DecodeRuneInString(s)
+	if isDigit(fr) {
+		return "", ErrInvalidString
+	}
 	var r Data
 	for index, currentRune := range s {
-		if index == 0 && isDigit(currentRune) {
-			return "", ErrInvalidString
-		}
 		if index == utf8.RuneCountInString(s)-1 && isSlash(currentRune) && !isSlash(r.prevRune) {
 			return "", ErrInvalidString
 		}
@@ -37,19 +38,12 @@ func Unpack(s string) (string, error) {
 	return r.stringBuilder.String(), nil
 }
 
-func parseValue(countRune interface{}) int {
-	switch v := countRune.(type) {
-	case int:
-		return v
-	case rune:
-		count, _ := strconv.Atoi(string(v))
-		return count
-	case string:
-		count, _ := strconv.Atoi(v)
-		return count
-	default:
+func parseValue(countRune rune) int {
+	r, err := strconv.Atoi(string(countRune))
+	if err != nil {
 		return 0
 	}
+	return r
 }
 
 func isDigit(r rune) bool {
@@ -70,11 +64,11 @@ func (r *Data) setPrevRune(currentRune rune) {
 }
 
 func (r *Data) checkItem(currentRune rune) bool {
-	result := isDigit(r.prev2Rune) && isDigit(r.prevRune)
-	return result || !isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune)
+	return isDigit(r.prev2Rune) && isDigit(r.prevRune) ||
+		!isSlash(r.prev2Rune) && isDigit(currentRune) && isDigit(r.prevRune)
 }
 
-func (r *Data) addItem(item, currentRune rune, count interface{}, countShift int) {
+func (r *Data) addItem(item, currentRune rune, count rune, countShift int) {
 	if item != 0 {
 		cnt := parseValue(count)
 		t := strings.Repeat(string(item), cnt)
@@ -118,13 +112,13 @@ func (r *Data) printValue(currentRune rune) {
 	item1, item2, item3 := r.getItems(currentRune)
 	switch {
 	case isPrint(item1) && !isDigit(item2):
-		r.addItem(item1, currentRune, 1, 1)
+		r.addItem(item1, currentRune, '1', 1)
 	case isPrint(item1) && isDigit(item2):
 		r.addItem(item1, currentRune, item2, 2)
 	case isSlash(item1) && !isPrint(item2) && isDigit(item3):
 		r.addItem(item2, currentRune, item3, 3)
 	case isSlash(item1) && !isPrint(item2):
-		r.addItem(item2, currentRune, 1, 2)
+		r.addItem(item2, currentRune, '1', 2)
 	}
 }
 
