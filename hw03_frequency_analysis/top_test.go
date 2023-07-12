@@ -1,8 +1,9 @@
 package hw03frequencyanalysis
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // Change to true if needed.
@@ -46,6 +47,7 @@ var text = `Как видите, он  спускается  по  лестни�
 	иногда,  особенно  когда  папа  дома,  он больше любит тихонько
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
+
 var td = testData{
 	text:   "нога, Ногу, Ноги, Нога, ногу ноги Ноги",
 	equals: []string{"ноги", "нога", "ногу"},
@@ -91,5 +93,4 @@ func TestTop10(t *testing.T) {
 		expected := td.equals
 		require.Equal(t, expected, Top10(td.text))
 	})
-
 }
