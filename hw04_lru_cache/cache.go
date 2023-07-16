@@ -55,7 +55,7 @@ func (r *lruCache) Set(key Key, value interface{}) bool {
 func (r *lruCache) Get(key Key) (interface{}, bool) {
 	r.mu.Lock()
 	value, isOk := r.items[key]
-	r.mu.Unlock()
+	defer r.mu.Unlock()
 	if isOk {
 		r.queue.MoveToFront(value)
 		i := r.getCacheValue(value)
