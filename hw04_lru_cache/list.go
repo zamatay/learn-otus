@@ -53,6 +53,7 @@ func (r *list) PushFront(v interface{}) *ListItem {
 }
 
 func (r *list) PushBack(v interface{}) *ListItem {
+	r.mu.Lock()
 	item := ListItem{}
 	if r.count == 0 {
 		r.firstItem = &item
@@ -64,6 +65,7 @@ func (r *list) PushBack(v interface{}) *ListItem {
 	}
 	r.count++
 	r.lastItem.Value = v
+	defer r.mu.Unlock()
 	return &item
 }
 
