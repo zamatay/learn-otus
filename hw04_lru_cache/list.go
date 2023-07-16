@@ -7,7 +7,7 @@ type List interface {
 	PushFront(v interface{}) *ListItem
 	PushBack(v interface{}) *ListItem
 	Remove(i *ListItem)
-	MoveToFront(i *ListItem)
+	MoveToFront(i *ListItem) *ListItem
 }
 
 type ListItem struct {
@@ -20,6 +20,14 @@ type list struct {
 	count     int
 	firstItem *ListItem
 	lastItem  *ListItem
+}
+
+func (l ListItem) getPrev() *ListItem {
+	return l.Prev
+}
+
+func (l ListItem) getNext() *ListItem {
+	return l.Next
 }
 
 func (r *list) Len() int {
@@ -41,6 +49,7 @@ func (r *list) PushFront(v interface{}) *ListItem {
 		r.lastItem = &item
 	} else {
 		item.Next = r.firstItem
+		r.firstItem.Prev = &item
 		r.firstItem = &item
 	}
 	r.count += 1
@@ -55,6 +64,7 @@ func (r *list) PushBack(v interface{}) *ListItem {
 		r.lastItem = &item
 	} else {
 		item.Prev = r.lastItem
+		r.lastItem.Next = &item
 		r.lastItem = &item
 	}
 	r.count += 1
@@ -68,18 +78,31 @@ func (r *list) Remove(i *ListItem) {
 	}
 	prevItem := i.Prev
 	nextItem := i.Next
-	prevItem.Next = nextItem
+	if prevItem != nil {
+		prevItem.Next = nextItem
+	}
+	if nextItem != nil {
+		nextItem.Prev = prevItem
+	}
+	if r.firstItem == i {
+		r.firstItem = nextItem
+	}
+	if r.lastItem == i {
+		r.lastItem = prevItem
+	}
 	r.count -= 1
 }
 
-func (r *list) MoveToFront(i *ListItem) {
+func (r *list) MoveToFront(i *ListItem) *ListItem {
 	if r.count == 0 {
-		return
+		return nil
 	}
 	r.Remove(i)
-	r.PushFront(i)
+	r.PushFront(i.Value)
+	return i
 }
 
 func NewList() List {
-	return new(list)
+	l := new(list)
+	return l
 }
