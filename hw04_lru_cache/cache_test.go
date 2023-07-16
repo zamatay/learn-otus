@@ -65,12 +65,7 @@ func TestCache(t *testing.T) {
 			[...]bool{getValue(c, "aaa"), getValue(c, "bbb"), getValue(c, "ccc"), getValue(c, "ddd")},
 		)
 	})
-	/*
-		- на логику выталкивания давно используемых элементов
-		(например: n = 3, добавили 3 элемента, обратились несколько раз к разным элементам:
-		изменили значение, получили значение и пр. - добавили 4й элемент,
-			из первой тройки вытолкнется тот элемент, что был затронут наиболее давно).
-	*/
+
 	t.Run("ttl purge logic", func(t *testing.T) {
 		c := NewCache(3)
 		c.Set("aaa", 100)
@@ -87,9 +82,7 @@ func TestCache(t *testing.T) {
 	})
 }
 
-func TestCacheMultithreading(t *testing.T) {
-	//t.Skip() // Remove me if task with asterisk completed.
-
+func TestCacheMultithreading(_ *testing.T) {
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)

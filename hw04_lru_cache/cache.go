@@ -60,9 +60,8 @@ func (r *lruCache) Get(key Key) (interface{}, bool) {
 		r.queue.MoveToFront(value)
 		i := r.getCacheValue(value)
 		return i.value, true
-	} else {
-		return nil, false
 	}
+	return nil, false
 }
 
 func (r *lruCache) Clear() {

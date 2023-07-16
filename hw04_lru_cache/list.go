@@ -22,14 +22,6 @@ type list struct {
 	lastItem  *ListItem
 }
 
-func (l ListItem) getPrev() *ListItem {
-	return l.Prev
-}
-
-func (l ListItem) getNext() *ListItem {
-	return l.Next
-}
-
 func (r *list) Len() int {
 	return r.count
 }
@@ -52,7 +44,7 @@ func (r *list) PushFront(v interface{}) *ListItem {
 		r.firstItem.Prev = &item
 		r.firstItem = &item
 	}
-	r.count += 1
+	r.count++
 	r.firstItem.Value = v
 	return &item
 }
@@ -67,7 +59,7 @@ func (r *list) PushBack(v interface{}) *ListItem {
 		r.lastItem.Next = &item
 		r.lastItem = &item
 	}
-	r.count += 1
+	r.count++
 	r.lastItem.Value = v
 	return &item
 }
@@ -90,7 +82,7 @@ func (r *list) Remove(i *ListItem) {
 	if r.lastItem == i {
 		r.lastItem = prevItem
 	}
-	r.count -= 1
+	r.count--
 }
 
 func (r *list) MoveToFront(i *ListItem) *ListItem {
