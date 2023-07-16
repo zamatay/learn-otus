@@ -1,7 +1,5 @@
 package hw04lrucache
 
-import "sync"
-
 type List interface {
 	Len() int
 	Front() *ListItem
@@ -19,7 +17,6 @@ type ListItem struct {
 }
 
 type list struct {
-	mu        sync.Mutex
 	count     int
 	firstItem *ListItem
 	lastItem  *ListItem
@@ -53,7 +50,6 @@ func (r *list) PushFront(v interface{}) *ListItem {
 }
 
 func (r *list) PushBack(v interface{}) *ListItem {
-	r.mu.Lock()
 	item := ListItem{}
 	if r.count == 0 {
 		r.firstItem = &item
@@ -65,7 +61,6 @@ func (r *list) PushBack(v interface{}) *ListItem {
 	}
 	r.count++
 	r.lastItem.Value = v
-	defer r.mu.Unlock()
 	return &item
 }
 
@@ -91,13 +86,11 @@ func (r *list) Remove(i *ListItem) {
 }
 
 func (r *list) MoveToFront(i *ListItem) *ListItem {
-	r.mu.Lock()
 	if r.count == 0 {
 		return nil
 	}
 	r.Remove(i)
 	r.PushFront(i.Value)
-	defer r.mu.Unlock()
 	return i
 }
 

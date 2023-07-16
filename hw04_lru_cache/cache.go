@@ -72,9 +72,8 @@ func (r *lruCache) Clear() {
 }
 
 func (r *lruCache) remove(item *ListItem) {
-	v := r.queue.Back()
-	if v != nil {
-		i := r.getCacheValue(v)
+	if item != nil {
+		i := r.getCacheValue(item)
 		delete(r.items, i.key)
 		r.queue.Remove(item)
 	}
