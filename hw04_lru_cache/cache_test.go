@@ -9,6 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func getValue(cache Cache, key Key) bool {
+	_, isOk := cache.Get(key)
+	return isOk
+}
+
 func TestCache(t *testing.T) {
 	t.Run("empty cache", func(t *testing.T) {
 		c := NewCache(10)
@@ -50,13 +55,35 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+		c.Set("aaa", 100)
+		c.Set("bbb", 100)
+		c.Set("ccc", 100)
+		c.Set("ddd", 100)
+		require.Equal(t,
+			[...]bool{false, true, true, true},
+			[...]bool{getValue(c, "aaa"), getValue(c, "bbb"), getValue(c, "ccc"), getValue(c, "ddd")},
+		)
+	})
+
+	t.Run("ttl purge logic", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+		c.Set("ccc", 300)
+		c.Get("bbb")
+		c.Get("aaa")
+		c.Set("ddd", 400)
+
+		require.Equal(t,
+			[...]bool{false, true, true, true},
+			[...]bool{getValue(c, "ccc"), getValue(c, "aaa"), getValue(c, "bbb"), getValue(c, "ddd")},
+		)
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
+	// t.Skip()
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
