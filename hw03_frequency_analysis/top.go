@@ -1,7 +1,6 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -21,7 +20,6 @@ func Top10(text string) []string {
 			m[strings.ToLower(v)]++
 		}
 	}
-	fmt.Println(m)
 	slData := make([]data, len(m))
 	for i, v := range m {
 		slData = append(slData, data{i, v})
@@ -35,15 +33,13 @@ func Top10(text string) []string {
 		}
 	})
 
-	var index int = 10
+	index := 10
 	if index > len(slData) {
 		index = len(slData)
 	}
 	result := make([]string, index)
-	fmt.Println(index)
 	for i := 0; i < index; i++ {
 		result[i] = slData[i].value
 	}
-	fmt.Printf("%v", result)
 	return result
 }
