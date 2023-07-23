@@ -8,11 +8,11 @@ import (
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
+type endTask = struct{}
 
-// Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
 	die := make(chan struct{})
-	workerEnd := make(chan struct{})
+	workerEnd := make(chan endTask)
 	mu := sync.Mutex{}
 	errorCount := 0
 
@@ -32,13 +32,13 @@ func Run(tasks []Task, n, m int) error {
 					default:
 						mu.Lock()
 						errorCount++
-						mu.Unlock()
 						if m == 0 || errorCount == m {
 							close(die)
 						}
+						mu.Unlock()
 					}
 				} else {
-					workerEnd <- struct{}{}
+					workerEnd <- endTask{}
 					return
 				}
 			}
