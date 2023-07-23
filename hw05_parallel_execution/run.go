@@ -28,13 +28,20 @@ func Run(tasks []Task, n, m int) error {
 				err := t()
 				if err != nil {
 					log.Printf("error %v\n", i)
-					mu.Lock()
-					errorCount++
-					if errorCount == m {
-						log.Printf("error count is m = %v\n", errorCount)
-						close(die)
+					select {
+					case _, ok := <-die:
+						if !ok {
+							return
+						}
+					default:
+						mu.Lock()
+						errorCount++
+						mu.Unlock()
+						if m == 0 || errorCount == m {
+							log.Printf("error count is m = %v\n", errorCount)
+							close(die)
+						}
 					}
-					mu.Unlock()
 				} else {
 					log.Printf("end %v\n", i)
 					workerEnd <- struct{}{}
