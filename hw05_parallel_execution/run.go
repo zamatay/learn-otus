@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"log"
 	"sync"
 )
 
@@ -18,16 +17,13 @@ func Run(tasks []Task, n, m int) error {
 	errorCount := 0
 
 	w := func(t Task, i int) {
-		log.Printf("gorutine begin work %v\n", i)
 		for {
 			select {
 			case <-die:
-				log.Printf("die %v\n", i)
 				return
 			default:
 				err := t()
 				if err != nil {
-					log.Printf("error %v\n", i)
 					select {
 					case _, ok := <-die:
 						if !ok {
@@ -38,12 +34,10 @@ func Run(tasks []Task, n, m int) error {
 						errorCount++
 						mu.Unlock()
 						if m == 0 || errorCount == m {
-							log.Printf("error count is m = %v\n", errorCount)
 							close(die)
 						}
 					}
 				} else {
-					log.Printf("end %v\n", i)
 					workerEnd <- struct{}{}
 					return
 				}
@@ -63,7 +57,6 @@ func Run(tasks []Task, n, m int) error {
 			}
 		}
 	}
-	log.Printf("exit from loop \n")
 	for i := 1; i < n; i++ {
 		<-workerEnd
 	}
