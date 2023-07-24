@@ -2,63 +2,61 @@ package hw05parallelexecution
 
 import (
 	"errors"
+	"log"
 	"sync"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
-type endTask = struct{}
+type tackChanel = chan Task
 
-func Run(tasks []Task, n, m int) error {
-	die := make(chan struct{})
-	workerEnd := make(chan endTask)
-	mu := sync.Mutex{}
-	errorCount := 0
+var mu sync.Mutex
+var wg = sync.WaitGroup{}
 
-	w := func(t Task, i int) {
-		for {
-			select {
-			case <-die:
-				return
-			default:
-				err := t()
-				if err != nil {
-					select {
-					case _, ok := <-die:
-						if !ok {
-							return
-						}
-					default:
-						mu.Lock()
-						errorCount++
-						if m == 0 || errorCount == m {
-							close(die)
-						}
-						mu.Unlock()
-					}
-				} else {
-					workerEnd <- endTask{}
-					return
-				}
-			}
+func worker(tc tackChanel, errorCount *int, i int) {
+	log.Printf("run worker %d", i)
+	isDie := false
+	for t := range tc {
+		err := t()
+		mu.Lock()
+		if *errorCount <= 0 {
+			isDie = true
+		}
+		if err != nil {
+			*errorCount--
+		}
+		mu.Unlock()
+		if isDie {
+			return
 		}
 	}
-	index := 0
-	for i, t := range tasks {
-		go w(t, i)
-		index++
-		if index == n {
-			select {
-			case <-workerEnd:
-				index--
-			case <-die:
-				return ErrErrorsLimitExceeded
-			}
-		}
+}
+
+func Run(tasks []Task, n int, m int) error {
+	errorCount := m
+	tCh := make(tackChanel, len(tasks))
+	wg.Add(n)
+
+	runWorker(&tCh, &errorCount, n)
+
+	for _, t := range tasks {
+		tCh <- t
 	}
-	for i := 1; i < n; i++ {
-		<-workerEnd
+
+	close(tCh)
+	wg.Wait()
+	if errorCount < 0 {
+		return ErrErrorsLimitExceeded
 	}
 	return nil
+}
+
+func runWorker(ch *tackChanel, errorCount *int, workerCount int) {
+	for i := 0; i < workerCount; i++ {
+		go func(i int) {
+			defer wg.Done()
+			worker(*ch, errorCount, i)
+		}(i)
+	}
 }
