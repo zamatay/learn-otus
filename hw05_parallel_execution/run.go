@@ -8,11 +8,15 @@ import (
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
-type Task func() error
-type tackChanel = chan Task
+type (
+	Task       func() error
+	tackChanel = chan Task
+)
 
-var mu sync.Mutex
-var wg = sync.WaitGroup{}
+var (
+	mu sync.Mutex
+	wg sync.WaitGroup
+)
 
 func worker(tc tackChanel, errorCount *int, i int) {
 	log.Printf("run worker %d", i)
