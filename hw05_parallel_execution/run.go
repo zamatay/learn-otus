@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"log"
 	"sync"
 )
 
@@ -16,12 +15,15 @@ type (
 var (
 	mu sync.Mutex
 	wg sync.WaitGroup
+	tc tackChanel
 )
 
-func worker(tc tackChanel, errorCount *int, i int) {
-	log.Printf("run worker %d", i)
+func worker(errorCount *int) {
 	isDie := false
 	for t := range tc {
+		if t == nil {
+			return
+		}
 		err := t()
 		mu.Lock()
 		if *errorCount <= 0 {
@@ -39,28 +41,28 @@ func worker(tc tackChanel, errorCount *int, i int) {
 
 func Run(tasks []Task, n int, m int) error {
 	errorCount := m
-	tCh := make(tackChanel, len(tasks))
+	tc = make(tackChanel, len(tasks))
 	wg.Add(n)
 
-	runWorker(&tCh, &errorCount, n)
+	runWorker(&errorCount, n)
 
 	for _, t := range tasks {
-		tCh <- t
+		tc <- t
 	}
 
-	close(tCh)
+	close(tc)
 	wg.Wait()
-	if errorCount < 0 {
+	if errorCount <= 0 {
 		return ErrErrorsLimitExceeded
 	}
 	return nil
 }
 
-func runWorker(ch *tackChanel, errorCount *int, workerCount int) {
+func runWorker(errorCount *int, workerCount int) {
 	for i := 0; i < workerCount; i++ {
-		go func(i int) {
+		go func() {
 			defer wg.Done()
-			worker(*ch, errorCount, i)
-		}(i)
+			worker(errorCount)
+		}()
 	}
 }
