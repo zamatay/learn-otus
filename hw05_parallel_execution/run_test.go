@@ -26,6 +26,7 @@ func getTask(runTasksCount *int32, taskSleep time.Duration, i int, withError boo
 	}
 }
 
+//nolint:funlen,gocognit
 func TestRun(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
@@ -200,6 +201,5 @@ func TestRun(t *testing.T) {
 				w.Run(tasks, workersCount, maxErrorsCount)
 			}()
 		}
-
 	})
 }
