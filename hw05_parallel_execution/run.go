@@ -9,60 +9,60 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type (
 	Task       func() error
-	tackChanel = chan Task
+	taskChanel = chan Task
 )
 
-var (
+type Worker struct {
 	mu sync.Mutex
 	wg sync.WaitGroup
-	tc tackChanel
-)
+	tc taskChanel
+}
 
-func worker(errorCount *int) {
+func (r *Worker) worker(errorCount *int) {
 	isDie := false
-	for t := range tc {
+	for t := range r.tc {
 		if t == nil {
 			return
 		}
 		err := t()
-		mu.Lock()
+		r.mu.Lock()
 		if *errorCount <= 0 {
 			isDie = true
 		}
 		if err != nil {
 			*errorCount--
 		}
-		mu.Unlock()
+		r.mu.Unlock()
 		if isDie {
 			return
 		}
 	}
 }
 
-func Run(tasks []Task, n int, m int) error {
+func (r *Worker) Run(tasks []Task, n int, m int) error {
 	errorCount := m
-	tc = make(tackChanel, len(tasks))
-	wg.Add(n)
+	r.tc = make(taskChanel, len(tasks))
+	r.wg.Add(n)
 
-	runWorker(&errorCount, n)
+	r.runWorker(&errorCount, n)
 
 	for _, t := range tasks {
-		tc <- t
+		r.tc <- t
 	}
 
-	close(tc)
-	wg.Wait()
+	close(r.tc)
+	r.wg.Wait()
 	if errorCount <= 0 {
 		return ErrErrorsLimitExceeded
 	}
 	return nil
 }
 
-func runWorker(errorCount *int, workerCount int) {
+func (r *Worker) runWorker(errorCount *int, workerCount int) {
 	for i := 0; i < workerCount; i++ {
 		go func() {
-			defer wg.Done()
-			worker(errorCount)
+			defer r.wg.Done()
+			r.worker(errorCount)
 		}()
 	}
 }
