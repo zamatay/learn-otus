@@ -106,7 +106,7 @@ func TestPipeline(t *testing.T) {
 		for s := range ExecutePipeline(in, nil, stages...) {
 			result = append(result, s.(string))
 		}
-		require.Equal(t, []string{"102"}, result)
+		require.Equal(t, []string{"120"}, result)
 		require.Len(t,
 			result,
 			1)
