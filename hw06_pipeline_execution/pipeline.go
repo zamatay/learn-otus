@@ -9,28 +9,29 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	out := in
+	fn := func(out Out, bi Bi) {
+		defer close(bi)
+
+		for {
+			select {
+			case value, isOpen := <-out:
+				if !isOpen {
+					return
+				}
+				bi <- value
+			case <-done:
+				return
+			}
+		}
+	}
+
 	for _, stage := range stages {
 		twin := make(Bi)
 
-		go func(bi Bi, out Out) {
-			defer close(twin)
+		go fn(in, twin)
 
-			for {
-				select {
-				case value, isOpen := <-out:
-					if !isOpen {
-						return
-					}
-					bi <- value
-				case <-done:
-					return
-				}
-			}
-		}(twin, out)
-
-		out = stage(twin)
+		in = stage(twin)
 	}
 
-	return out
+	return in
 }
