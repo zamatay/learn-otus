@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
+	"io/fs"
 	"os"
 )
 
@@ -17,13 +19,27 @@ const (
 
 var EInvalidOffset = errors.New("invalid offset")
 
+type Stat interface {
+	Stat() (fs.FileInfo, error)
+}
+
+type ReadAtWriteCloser interface {
+	io.WriteCloser
+	io.ReaderAt
+	Stat
+}
+
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fRead := getFile(fromPath, false)
 	defer fRead.Close()
 	fWrite := getFile(toPath, true)
 	defer fWrite.Close()
+	return CopyInternal(fRead, fWrite, offset, limit)
+}
 
-	size := getFileSize(fRead)
+func CopyInternal(read ReadAtWriteCloser, write ReadAtWriteCloser, o int64, l int64) error {
+
+	size := getFileSize(read)
 
 	if offset >= size {
 		return EInvalidOffset
@@ -33,13 +49,13 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		bufSize, theEnd := getBufferLen(size, offset, totalRead, limit)
 
 		data := make([]byte, bufSize)
-		cnt, err := fRead.ReadAt(data, offset)
+		cnt, err := read.ReadAt(data, offset)
 		if err != nil {
 			return err
 		}
 		offset += int64(cnt)
 		totalRead += int64(cnt)
-		fWrite.Write(data)
+		write.Write(data)
 		if theEnd {
 			break
 		}
@@ -58,7 +74,7 @@ func getBufferLen(size int64, o int64, read int64, l int64) (int, bool) {
 	return bufferLen, false
 }
 
-func getFileSize(file *os.File) int64 {
+func getFileSize(file ReadAtWriteCloser) int64 {
 	var size64 int64
 	if info, err := file.Stat(); err == nil {
 		size64 = info.Size()
@@ -66,7 +82,7 @@ func getFileSize(file *os.File) int64 {
 	return size64
 }
 
-func getFile(path string, isWrite bool) *os.File {
+func getFile(path string, isWrite bool) ReadAtWriteCloser {
 	var fRead *os.File
 	var err error
 	if isWrite {
