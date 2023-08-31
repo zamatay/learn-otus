@@ -1,35 +1,32 @@
 package main
 
 import (
+	"bytes"
+	"github.com/stretchr/testify/require"
+	"path"
+	"strings"
 	"testing"
 )
 
-//type StorageMock struct {
-//}
-//
-//func (s StorageMock) Close() error {
-//	return nil
-//}
-//
-//func (s StorageMock) ReadAt(p []byte, off int64) (n int, err error){
-//	return 0, nil
-//}
-//
-//func (s StorageMock) Write(p []byte) (n int, err error){
-//	return 0, nil
-//}
-//
-//func (s StorageMock) Stat() (fs.FileInfo, error){
-//	return {}
-//}
-
-var testFile = &FakeFile{
-	name:     "goodbye",
-	contents: "Это тестовая строка для копирования", // 13 bytes, another odd number.
-	mode:     0644,
-}
-
 func TestCopy(t *testing.T) {
+	r := strings.NewReader("test string")
+	w := bytes.NewBufferString("")
+	t.Run("offset", func(t *testing.T) {
+		CopyInternal(r, w, 1, 1025, r.Size())
+		require.Equal(t, "est string", w.String())
+	})
+	t.Run("limit", func(t *testing.T) {
+		CopyInternal(r, w, 0, 5, r.Size())
+		require.Equal(t, "test ", w.String())
+	})
+	t.Run("full", func(t *testing.T) {
+		CopyInternal(r, w, 0, 0, r.Size())
+		require.Equal(t, "test string", w.String())
+	})
 
-	CopyInternal(testFile, "/home/aleksandr/Загрузки/vks-client02-ios.ovpn.bcp", 10, 1025)
+	fileNmae := path.Join(t.TempDir(), "vks-client02-ios.ovpn.bcp")
+	t.Run("work", func(t *testing.T) {
+		Copy("~/Загрузки/vks-client02-ios.ovpn", fileNmae, 0, 0)
+		require.FileExists(t, fileNmae)
+	})
 }
