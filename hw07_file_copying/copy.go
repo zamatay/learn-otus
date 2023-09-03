@@ -12,7 +12,7 @@ const (
 	bufferLen = 1024
 )
 
-var EInvalidOffset = errors.New("invalid offset")
+var ErrInvalidOffset = errors.New("invalid offset")
 
 type Stat interface {
 	Stat() (fs.FileInfo, error)
