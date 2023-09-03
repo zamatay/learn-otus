@@ -34,7 +34,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 func CopyInternal(read io.ReaderAt, write io.Writer, o int64, l int64, size int64) error {
 	if o >= size {
-		return EInvalidOffset
+		return ErrInvalidOffset
 	}
 	totalRead := int64(0)
 	for {
