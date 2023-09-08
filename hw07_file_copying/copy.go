@@ -25,14 +25,14 @@ type ReadAtWriteCloser interface {
 }
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	fRead := getFile(fromPath, false)
-	fWrite := getFile(toPath, true)
+	fRead, size := getFile(fromPath, false)
+	fWrite, _ := getFile(toPath, true)
 	defer fRead.Close()
 	defer fWrite.Close()
-	return CopyInternal(fRead, fWrite, offset, limit, getFileSize(fRead))
+	return CopyInternal(fRead, fWrite, offset, limit, size)
 }
 
-func CopyInternal(read io.ReaderAt, write io.Writer, o int64, l int64, size int64) error {
+func CopyInternal(src io.ReaderAt, dst io.Writer, o int64, l int64, size int64) error {
 	if o >= size {
 		return ErrInvalidOffset
 	}
@@ -40,28 +40,28 @@ func CopyInternal(read io.ReaderAt, write io.Writer, o int64, l int64, size int6
 	for {
 		bufSize, theEnd := getBufferLen(size, o, totalRead, l)
 
+		//io.CopyN(dst, src, bufSize)
 		data := make([]byte, bufSize)
-		cnt, err := read.ReadAt(data, o)
+		cnt, err := src.ReadAt(data, o)
 		if err != nil {
 			return err
 		}
-		offset += int64(cnt)
+		o += int64(cnt)
 		totalRead += int64(cnt)
-		write.Write(data)
+		dst.Write(data)
 		if theEnd {
 			break
 		}
 	}
-
 	return nil
 }
 
-func getBufferLen(size int64, o int64, read int64, l int64) (int, bool) {
+func getBufferLen(size int64, o int64, read int64, l int64) (int64, bool) {
 	if l > 0 && int64(read)+bufferLen >= l {
-		return int(l - int64(read)), true
+		return l - read, true
 	}
 	if o+bufferLen > size {
-		return int(size) - int(o), true
+		return size - o, true
 	}
 	return bufferLen, false
 }
@@ -74,7 +74,7 @@ func getFileSize(file ReadAtWriteCloser) int64 {
 	return size64
 }
 
-func getFile(path string, isWrite bool) ReadAtWriteCloser {
+func getFile(path string, isWrite bool) (ReadAtWriteCloser, int64) {
 	var fRead *os.File
 	var err error
 	if isWrite {
@@ -85,5 +85,5 @@ func getFile(path string, isWrite bool) ReadAtWriteCloser {
 	if err != nil {
 		log.Printf("file name %s error to access", path)
 	}
-	return fRead
+	return fRead, getFileSize(fRead)
 }
