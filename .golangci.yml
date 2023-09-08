@@ -38,7 +38,6 @@ linters:
     - exhaustive
     - exportloopref
     - funlen
-    - gci
     - gocognit
     - goconst
     - gocritic
