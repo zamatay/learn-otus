@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"os"
+	"path"
 )
 
 var (
@@ -17,7 +20,19 @@ func init() {
 
 }
 
+func FileExists(fileName string) bool {
+	if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+	return true
+}
+
 func main() {
 	flag.Parse()
-	Copy(from, to, offset, limit)
+	if from == "" {
+		to := path.Join(os.TempDir(), "tmmp.txt")
+		Copy("./testData/input.txt", to, 0, 0)
+	} else if FileExists(from) && FileExists(to) {
+		Copy(from, to, offset, limit)
+	}
 }
