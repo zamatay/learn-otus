@@ -36,7 +36,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return ErrInvalidFileName
 	}
 	fRead := FileInfo{nil, fromPath, offset, 0, false}
-	fWrite := FileInfo{nil, toPath, offset, 0, true}
+	fWrite := FileInfo{nil, toPath, 0, 0, true}
 	if isOk, err := getFile(&fRead); !isOk {
 		log.Printf("%v", err)
 		return err
@@ -92,15 +92,15 @@ func getFile(fi *FileInfo) (bool, error) {
 			log.Printf("%v", err)
 			return false, err
 		}
-	}
-	fi.size, err = getFileSize(fi.file)
-	if offset != 0 {
-		if fi.size < offset {
-			return false, ErrInvalidOffset
-		}
-		_, err := fi.file.Seek(offset, 0)
-		if err != nil {
-			return false, err
+		fi.size, err = getFileSize(fi.file)
+		if offset != 0 {
+			if fi.size < offset {
+				return false, ErrInvalidOffset
+			}
+			_, err := fi.file.Seek(offset, 0)
+			if err != nil {
+				return false, err
+			}
 		}
 	}
 	if err != nil {

@@ -29,8 +29,10 @@ func FileExists(fileName string) bool {
 func main() {
 	flag.Parse()
 	if from == "" {
+		offset = 100
+		limit = 1000
 		to := os.TempDir() + "/" + "tmmp.txt"
-		err := Copy("./testData/input.txt", to, 0, 0)
+		err := Copy("testData/input.txt", to, 0, 0)
 		if err != nil {
 			log.Printf("%v", err)
 			return
