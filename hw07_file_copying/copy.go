@@ -8,10 +8,6 @@ import (
 	"os"
 )
 
-const (
-	bufferLen = 1024
-)
-
 var ErrInvalidOffset = errors.New("InvalidOffset")
 var ErrInvalidFileName = errors.New("InvalidFileName")
 
@@ -30,6 +26,11 @@ type FileInfo struct {
 }
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
+	closeFile := func(file File) {
+		err := file.Close()
+		if err != nil {
+		}
+	}
 	if fromPath == "" || toPath == "" {
 		return ErrInvalidFileName
 	}
@@ -41,14 +42,17 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if isOk, err := getFile(&fWrite); !isOk {
 		return err
 	}
-	defer fRead.file.Close()
-	defer fWrite.file.Close()
-	return CopyInternal(fRead, fWrite, offset, limit)
+	defer closeFile(fRead.file)
+	defer closeFile(fWrite.file)
+	return CopyInternal(fRead.file, fWrite.file, offset, limit, fRead.size)
 }
 
-func CopyInternal(src FileInfo, dst FileInfo, o int64, l int64) error {
-	bufSize := getBufferLen(src.size, o, l)
-	io.CopyN(dst.file, src.file, bufSize)
+func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) error {
+	bufSize := getBufferLen(size, o, l)
+	_, err := io.CopyN(dst, src, bufSize)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -81,7 +85,10 @@ func getFile(fi *FileInfo) (bool, error) {
 		if fi.size < offset {
 			return false, ErrInvalidOffset
 		}
-		fi.file.Seek(offset, 0)
+		_, err := fi.file.Seek(offset, 0)
+		if err != nil {
+			return false, err
+		}
 	}
 	if err != nil {
 		log.Printf("file name %s error to access", fi.path)
