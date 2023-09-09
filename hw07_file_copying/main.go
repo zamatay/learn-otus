@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"flag"
+	"log"
 	"os"
-	"path"
 )
 
 var (
@@ -30,9 +30,17 @@ func FileExists(fileName string) bool {
 func main() {
 	flag.Parse()
 	if from == "" {
-		to := path.Join(os.TempDir(), "tmmp.txt")
-		Copy("./testData/input.txt", to, 0, 0)
+		to := os.TempDir() + "/" + "tmmp.txt"
+		err := Copy("./testData/input.txt", to, 0, 0)
+		if err != nil {
+			log.Printf("%v", err)
+			return
+		}
 	} else if FileExists(from) && FileExists(to) {
-		Copy(from, to, offset, limit)
+		err := Copy(from, to, offset, limit)
+		if err != nil {
+			log.Printf("%v", err)
+			return
+		}
 	}
 }
