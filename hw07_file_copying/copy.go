@@ -51,6 +51,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 }
 
 func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) error {
+	if o < 0 {
+		return ErrInvalidOffset
+	}
 	bufSize := getBufferLen(size, o, l)
 	_, err := io.CopyN(dst, src, bufSize)
 	if err != nil {
