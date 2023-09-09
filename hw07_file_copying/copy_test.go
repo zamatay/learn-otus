@@ -29,13 +29,13 @@ func TestCopy(t *testing.T) {
 		require.Equal(t, "test ", w.String())
 	})
 
-	fileName := path.Join(t.TempDir(), "vks-client02-ios.ovpn.bcp")
+	fileTo := path.Join(t.TempDir(), "input.txt")
 	t.Run("real", func(t *testing.T) {
 		fileFrom := path.Join("./tesdata", "input.txt")
-		err := Copy(fileFrom, fileName, 0, 0)
+		err := Copy(fileFrom, fileTo, 0, 0)
 		if err != nil {
 			t.Fail()
 		}
-		require.FileExists(t, fileName)
+		require.FileExists(t, fileTo)
 	})
 }
