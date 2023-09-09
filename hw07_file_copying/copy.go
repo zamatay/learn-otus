@@ -29,6 +29,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	closeFile := func(file File) {
 		err := file.Close()
 		if err != nil {
+			log.Printf("%v", err)
 		}
 	}
 	if fromPath == "" || toPath == "" {
@@ -37,9 +38,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	fRead := FileInfo{nil, fromPath, offset, 0, false}
 	fWrite := FileInfo{nil, toPath, offset, 0, true}
 	if isOk, err := getFile(&fRead); !isOk {
+		log.Printf("%v", err)
 		return err
 	}
 	if isOk, err := getFile(&fWrite); !isOk {
+		log.Printf("%v", err)
 		return err
 	}
 	defer closeFile(fRead.file)
@@ -51,6 +54,7 @@ func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) er
 	bufSize := getBufferLen(size, o, l)
 	_, err := io.CopyN(dst, src, bufSize)
 	if err != nil {
+		log.Printf("%v", err)
 		return err
 	}
 	return nil
@@ -68,6 +72,7 @@ func getBufferLen(size int64, offset int64, limit int64) int64 {
 func getFileSize(file fs.File) (int64, error) {
 	info, err := file.Stat()
 	if err != nil {
+		log.Printf("%v", err)
 		return 0, err
 	}
 	return info.Size(), nil
@@ -77,8 +82,16 @@ func getFile(fi *FileInfo) (bool, error) {
 	var err error
 	if fi.isWrite {
 		fi.file, err = os.Create(fi.path)
+		if err != nil {
+			log.Printf("%v", err)
+			return false, err
+		}
 	} else {
 		fi.file, err = os.Open(fi.path)
+		if err != nil {
+			log.Printf("%v", err)
+			return false, err
+		}
 	}
 	fi.size, err = getFileSize(fi.file)
 	if offset != 0 {
