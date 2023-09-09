@@ -27,14 +27,4 @@ func TestCopy(t *testing.T) {
 		}
 		require.Equal(t, "test ", w.String())
 	})
-
-	//fileTo := path.Join(t.TempDir(), "input.txt")
-	//t.Run("real", func(t *testing.T) {
-	//	fileFrom := path.Join("./tesdata", "input.txt")
-	//	err := Copy(fileFrom, fileTo, 0, 0)
-	//	if err != nil {
-	//		t.Fail()
-	//	}
-	//	require.FileExists(t, fileTo)
-	//})
 }

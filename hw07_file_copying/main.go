@@ -35,7 +35,7 @@ func main() {
 			log.Printf("%v", err)
 			return
 		}
-	} else if FileExists(from) && FileExists(to) {
+	} else if FileExists(from) {
 		err := Copy(from, to, offset, limit)
 		if err != nil {
 			log.Printf("%v", err)
