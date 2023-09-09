@@ -61,10 +61,8 @@ func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) er
 }
 
 func getBufferLen(size int64, offset int64, limit int64) int64 {
-	if limit > 0 {
-		if size-offset > limit {
-			return limit
-		}
+	if limit > 0 && size-offset > limit {
+		return limit
 	}
 	return size - offset
 }
