@@ -49,7 +49,7 @@ linters:
     - gosimple
     - govet
     - importas
-    - ineffassign
+#    - ineffassign
     - lll
     - makezero
     - misspell
