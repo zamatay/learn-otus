@@ -66,11 +66,11 @@ func getBufferLen(size int64, offset int64, limit int64) int64 {
 }
 
 func getFileSize(file fs.File) (int64, error) {
-	if info, err := file.Stat(); err != nil {
+	info, err := file.Stat()
+	if err != nil {
 		return 0, err
-	} else {
-		return info.Size(), nil
 	}
+	return info.Size(), nil
 }
 
 func getFile(fi *FileInfo) (bool, error) {
