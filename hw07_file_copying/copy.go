@@ -86,21 +86,22 @@ func getFile(fi *FileInfo) (bool, error) {
 			log.Printf("%v", err)
 			return false, err
 		}
-	} else {
-		fi.file, err = os.Open(fi.path)
-		if err != nil {
-			log.Printf("%v", err)
-			return false, err
+		return true, nil
+	}
+
+	fi.file, err = os.Open(fi.path)
+	if err != nil {
+		log.Printf("%v", err)
+		return false, err
+	}
+	fi.size, err = getFileSize(fi.file)
+	if offset != 0 {
+		if fi.size < offset {
+			return false, ErrInvalidOffset
 		}
-		fi.size, err = getFileSize(fi.file)
-		if offset != 0 {
-			if fi.size < offset {
-				return false, ErrInvalidOffset
-			}
-			_, err := fi.file.Seek(offset, 0)
-			if err != nil {
-				return false, err
-			}
+		_, err := fi.file.Seek(offset, 0)
+		if err != nil {
+			return false, err
 		}
 	}
 	if err != nil {
