@@ -6,6 +6,8 @@ import (
 	"io/fs"
 	"log"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var ErrInvalidOffset = errors.New("InvalidOffset")
@@ -55,7 +57,10 @@ func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) er
 		return ErrInvalidOffset
 	}
 	bufSize := getBufferLen(size, o, l)
-	_, err := io.CopyN(dst, src, bufSize)
+	bar := pb.Full.Start64(bufSize)
+	barReader := bar.NewProxyReader(src)
+	_, err := io.CopyN(dst, barReader, bufSize)
+	bar.Finish()
 	if err != nil {
 		log.Printf("%v", err)
 		return err
