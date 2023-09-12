@@ -27,13 +27,14 @@ type FileInfo struct {
 	isWrite bool
 }
 
-func Copy(fromPath, toPath string, offset, limit int64) error {
-	closeFile := func(file File) {
-		err := file.Close()
-		if err != nil {
-			log.Printf("%v", err)
-		}
+var closeFile = func(file File) {
+	err := file.Close()
+	if err != nil {
+		log.Printf("%v", err)
 	}
+}
+
+func Copy(fromPath, toPath string, offset, limit int64) error {
 	if fromPath == "" || toPath == "" {
 		return ErrInvalidFileName
 	}
@@ -57,10 +58,16 @@ func CopyInternal(src io.Reader, dst io.Writer, o int64, l int64, size int64) er
 		return ErrInvalidOffset
 	}
 	bufSize := getBufferLen(size, o, l)
-	bar := pb.Full.Start64(bufSize)
+
+	return copyWithBar(bufSize, src, dst)
+}
+
+func copyWithBar(sz int64, src io.Reader, dst io.Writer) error {
+	bar := pb.Full.Start64(sz)
+	defer bar.Finish()
 	barReader := bar.NewProxyReader(src)
-	_, err := io.CopyN(dst, barReader, bufSize)
-	bar.Finish()
+	_, err := io.CopyN(dst, barReader, sz)
+
 	if err != nil {
 		log.Printf("%v", err)
 		return err
