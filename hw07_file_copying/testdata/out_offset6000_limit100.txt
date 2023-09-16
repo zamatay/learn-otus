@@ -1,0 +1,3 @@
+nder Windows.
+
+You should also remove the Go bin directory from your PATH environment variable. Unde
