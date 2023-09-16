@@ -17,6 +17,14 @@ type EnvValue struct {
 	NeedRemove bool
 }
 
+var envTest = Environment{
+	"BAR":   EnvValue{Value: "bar"},
+	"EMPTY": EnvValue{NeedRemove: true},
+	"FOO":   EnvValue{Value: "   foo\nwith new line"},
+	"HELLO": EnvValue{Value: "\"hello\""},
+	"UNSET": EnvValue{NeedRemove: true},
+}
+
 var ErrDirIsNotLoad = errors.New("DirectoryIsNotLoad")
 
 // ReadDir reads a specified directory and returns map of env variables.
@@ -33,19 +41,22 @@ func ReadDir(dir string) (Environment, error) {
 			continue
 		}
 		fileName := path.Join(dir, file.Name())
-		file, err := os.Open(fileName)
+		f, err := os.Open(fileName)
 		if err != nil {
-			log.Println("Ошибка при чтении файла\n %v", err)
+			log.Printf("Ошибка при чтении файла\n %v", err)
 		}
-		scanner := bufio.NewScanner(file)
+		scanner := bufio.NewScanner(f)
 		ev := EnvValue{}
-		ev.NeedRemove = scanner.Scan()
+		ev.NeedRemove = !scanner.Scan()
 		if ev.NeedRemove {
 			result[file.Name()] = ev
 			continue
 		}
 		ev.Value = scanner.Text()
-		file.Close()
+		if err := f.Close(); err != nil {
+			log.Printf("Ошибка при закрытии файла\n %v", err)
+			return nil, err
+		}
 		ev.Value = strings.TrimRight(ev.Value, " \t")
 		ev.Value = strings.ReplaceAll(ev.Value, "\x00", "\n")
 		ev.NeedRemove = len(ev.Value) == 0

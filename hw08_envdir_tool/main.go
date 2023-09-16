@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 )
@@ -14,8 +15,8 @@ func FileExists(fileName string) bool {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		log.Fatalf("Не хватает аргументов")
+	if len(os.Args) < 4 {
+		fmt.Print("Не хватает аргументов")
 	}
 	pathToDir := os.Args[1]
 	if pathToDir == "" {

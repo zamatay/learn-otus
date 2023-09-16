@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 echo -e "HELLO is (${HELLO})
 BAR is (${BAR})
