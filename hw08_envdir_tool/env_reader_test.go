@@ -7,7 +7,6 @@ import (
 )
 
 func TestReadDir(t *testing.T) {
-	// Place your code here
 	t.Run("dirNotFound", func(t *testing.T) {
 		_, err := ReadDir("123")
 		if !errors.Is(err, ErrDirIsNotLoad) {
@@ -30,5 +29,4 @@ func TestReadDir(t *testing.T) {
 		}
 		fmt.Printf("%v\n", env)
 	})
-
 }
