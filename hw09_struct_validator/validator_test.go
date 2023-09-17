@@ -7,12 +7,13 @@ import (
 )
 
 type UserRole string
+type name = string
 
 // Test the function on different structures and other types.
 type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
-		Name   string
+		Name   name
 		Age    int             `validate:"min:18|max:50"`
 		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
 		Role   UserRole        `validate:"in:admin,stuff"`
@@ -47,7 +48,7 @@ func TestValidate(t *testing.T) {
 		// ...
 		// Place your code here.
 	}
-
+	Validate(User{})
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
