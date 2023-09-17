@@ -17,14 +17,6 @@ type EnvValue struct {
 	NeedRemove bool
 }
 
-var envTest = Environment{
-	"BAR":   EnvValue{Value: "bar"},
-	"EMPTY": EnvValue{NeedRemove: true},
-	"FOO":   EnvValue{Value: "   foo\nwith new line"},
-	"HELLO": EnvValue{Value: "\"hello\""},
-	"UNSET": EnvValue{NeedRemove: true},
-}
-
 var ErrDirIsNotLoad = errors.New("DirectoryIsNotLoad")
 
 // ReadDir reads a specified directory and returns map of env variables.
