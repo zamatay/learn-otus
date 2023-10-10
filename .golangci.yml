@@ -47,6 +47,5 @@ linters:
     - gosec
     - gosimple
     - govet
-    - importas
 
 
