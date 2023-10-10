@@ -58,6 +58,5 @@ linters:
     - revive
     - stylecheck
     - tagliatelle
-    - thelper
-    - typecheck
+
 
