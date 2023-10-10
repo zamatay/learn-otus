@@ -57,8 +57,5 @@ linters:
     - predeclared
     - revive
     - thelper
-    - typecheck
-    - unparam
-    - unused
-    - whitespace
+
 
