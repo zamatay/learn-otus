@@ -32,5 +32,6 @@ linters:
     - bodyclose
     - depguard
     - dogsled
-
+    - dupl
+    - durationcheck
 
