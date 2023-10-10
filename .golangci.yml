@@ -56,6 +56,9 @@ linters:
     - prealloc
     - predeclared
     - revive
-    - stylecheck
-
+    - thelper
+    - typecheck
+    - unparam
+    - unused
+    - whitespace
 
