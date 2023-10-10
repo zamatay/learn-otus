@@ -55,4 +55,5 @@ linters:
     - nolintlint
     - prealloc
     - predeclared
+    - revive
 
