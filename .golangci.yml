@@ -27,44 +27,4 @@ issues:
 
 linters:
   disable-all: true
-  enable:
-#    - asciicheck
-#    - bodyclose
-#    - depguard
-#    - dogsled
-#    - dupl
-#    - durationcheck
-#    - errorlint
-#    - exhaustive
-#    - exportloopref
-#    - funlen
-#    - gocognit
-#    - goconst
-#    - gocritic
-#    - gocyclo
-#    - godot
-#    - goheader
-#    - goprintffuncname
-#    - gosec
-#    - gosimple
-#    - govet
-#    - importas
-#    - ineffassign
-#    - lll
-#    - makezero
-#    - misspell
-#    - nestif
-#    - nilerr
-#    - noctx
-#    - nolintlint
-#    - prealloc
-#    - predeclared
-#    - revive
-#    - staticcheck
-#    - stylecheck
-#    - tagliatelle
-#    - thelper
-#    - typecheck
-#    - unparam
-#    - unused
-#    - whitespace
+
