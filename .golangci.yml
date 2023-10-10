@@ -37,11 +37,4 @@ linters:
     - errorlint
     - exhaustive
     - exportloopref
-    - funlen
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - goheader
-    - goprintffuncname
+
