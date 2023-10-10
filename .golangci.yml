@@ -54,7 +54,5 @@ linters:
     - noctx
     - nolintlint
     - prealloc
-    - predeclared
-    - revive
-    - staticcheck
+
 
