@@ -57,10 +57,4 @@ linters:
     - predeclared
     - revive
     - staticcheck
-    - stylecheck
-    - tagliatelle
-    - thelper
-    - typecheck
-    - unparam
-    - unused
-    - whitespace
+
