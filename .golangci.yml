@@ -27,4 +27,5 @@ issues:
 
 linters:
   disable-all: true
-
+  enable:
+    - asciicheck
