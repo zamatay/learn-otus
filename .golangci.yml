@@ -44,7 +44,5 @@ linters:
     - godot
     - goheader
     - goprintffuncname
-    - gosimple
-    - govet
 
 
