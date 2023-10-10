@@ -60,6 +60,4 @@ linters:
     - tagliatelle
     - thelper
     - typecheck
-    - unparam
-    - unused
-    - whitespace
+
