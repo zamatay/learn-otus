@@ -45,6 +45,6 @@ linters:
     - goheader
     - goprintffuncname
     - gosec
-    - gosimple
+    - govet
 
 
