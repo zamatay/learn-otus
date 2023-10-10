@@ -44,5 +44,12 @@ linters:
     - godot
     - goheader
     - goprintffuncname
-
+    - importas
+    - ineffassign
+    - lll
+    - makezero
+    - misspell
+    - nestif
+    - nilerr
+    - noctx
 
