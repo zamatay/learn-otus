@@ -35,4 +35,13 @@ linters:
     - dupl
     - durationcheck
     - errorlint
+    - exportloopref
+    - funlen
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - goheader
+    - goprintffuncname
 
