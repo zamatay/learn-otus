@@ -54,5 +54,5 @@ linters:
     - noctx
     - nolintlint
     - prealloc
-
+    - predeclared
 
