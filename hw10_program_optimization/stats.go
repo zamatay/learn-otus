@@ -1,10 +1,9 @@
 package hw10programoptimization
 
 import (
+	"bufio"
 	"encoding/json"
-	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
@@ -21,46 +20,60 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
+	return countDomain(unmarshalUser(readBuf(r)), domain)
 }
 
 type users [100_000]User
 
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := io.ReadAll(r)
-	if err != nil {
-		return
-	}
+func readBuf(r io.Reader) <-chan string {
+	//slog.Info("begin readBuf")
+	out := make(chan string)
 
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
+	go func() {
+		scanner := bufio.NewScanner(r)
+		for scanner.Scan() {
+			s := scanner.Text()
+			//slog.String("scan string", s)
+			out <- s
 		}
-		result[i] = user
-	}
-	return
+		close(out)
+	}()
+	//slog.Info("end readBuf")
+	return out
 }
 
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
-		if err != nil {
-			return nil, err
+func unmarshalUser(in <-chan string) <-chan User {
+	//slog.Info("begin unmarshalUser")
+	out := make(chan User)
+	go func() {
+		for line := range in {
+			var user User
+			if err := json.Unmarshal([]byte(line), &user); err != nil {
+				//slog.Error("error unmarshal", //slog.String("line", line))
+				continue
+			}
+			//slog.Info("send User", //slog.Any("user", user))
+			out <- user
 		}
+		close(out)
+	}()
+	//slog.Info("end unmarshalUser")
+	return out
+}
 
+func countDomain(in <-chan User, domain string) (DomainStat, error) {
+	//slog.Info("begin countDomain")
+	result := make(DomainStat, 100_000)
+	d := "" + domain
+	for user := range in {
+		matched := strings.Contains(user.Email, d)
 		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
+			dom := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			num := result[dom]
 			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+			result[dom] = num
 		}
 	}
+	//slog.Info("end countDomain")
 	return result, nil
 }
