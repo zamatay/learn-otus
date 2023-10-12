@@ -31,6 +31,10 @@ type (
 		Code int    `validate:"in:200,404,500"`
 		Body string `json:"omitempty"`
 	}
+
+	Data struct {
+		Count int `validate:"regexp:^d+$"`
+	}
 )
 
 func TestValidate(t *testing.T) {
@@ -42,27 +46,27 @@ func TestValidate(t *testing.T) {
 		{
 			caption:     "len",
 			in:          User{ID: "1234567890123456789012345678901234567", Email: "zamuraev@mail.com", Age: 18, Role: "user", Phones: []string{"79189182626"}},
-			expectedErr: arrayFunc["len"].err,
+			expectedErr: lenValidatorError,
 		},
 		{
 			caption:     "regexp",
 			in:          User{ID: "12345678901", Email: "zamuraev", Age: 18, Role: "user", Phones: []string{"79189182626"}},
-			expectedErr: arrayFunc["regexp"].err,
+			expectedErr: regexpValidatorError,
 		},
 		{
 			caption:     "min",
 			in:          User{ID: "12345678901", Email: "zamuraev@mail.com", Age: 16, Role: "user", Phones: []string{"79189182626"}},
-			expectedErr: arrayFunc["min"].err,
+			expectedErr: minValidatorError,
 		},
 		{
 			caption:     "len slice",
 			in:          User{ID: "12", Email: "zamuraev@mail.com", Age: 18, Role: "user", Phones: []string{"7918918262626"}},
-			expectedErr: arrayFunc["max"].err,
+			expectedErr: maxValidatorError,
 		},
 		{
 			caption:     "in",
 			in:          User{ID: "12", Email: "zamuraev@mail.com", Age: 18, Role: "guest", Phones: []string{"79189182626"}},
-			expectedErr: arrayFunc["Role"].err,
+			expectedErr: inValidatorError,
 		},
 	}
 	for _, tt := range tests {
@@ -79,18 +83,22 @@ func TestValidate(t *testing.T) {
 	})
 	t.Run("len", func(t *testing.T) {
 		err := Validate(App{Version: "123456"})
-		require.EqualError(t, err, "Version: Значение превысило максимальную длину")
+		require.False(t, errors.Is(err, lenValidatorError))
 	})
 	t.Run("multi", func(t *testing.T) {
 		err := Validate(User{ID: "1234567890123456789012345678901234567", Age: 60})
-		require.EqualError(t, err, "ID: Значение превысило максимальную длину\nAge: Значение больше максимального\nEmail: Значение не соответствует регулярному выражению\nRole: Значение не входит в перечень")
+		require.EqualError(t, err, "ID: lenValidatorError\nAge: maxValidatorError\nEmail: regexpValidatorError\nRole: inValidatorError")
 	})
 	t.Run("in int fail", func(t *testing.T) {
 		err := Validate(Response{Code: 10})
-		require.EqualError(t, err, "Code: Значение не входит в перечень")
+		require.False(t, errors.Is(err, inValidatorError))
 	})
 	t.Run("in int pass", func(t *testing.T) {
 		err := Validate(Response{Code: 404})
+		require.NoError(t, err)
+	})
+	t.Run("regexp int fail", func(t *testing.T) {
+		err := Validate(Data{Count: 1})
 		require.NoError(t, err)
 	})
 }

@@ -54,7 +54,7 @@ func Validate(v interface{}) error {
 }
 
 func handleValidate(tt reflect.Type, tv reflect.Value) error {
-	validErrors := make(ValidationErrors, 0, 5)
+	validErrors := make(ValidationErrors, 0)
 	for i := 0; i < tt.NumField(); i++ {
 		ft := tt.Field(i)
 		if slices.Contains(ValidateType, ft.Type.Kind()) {
