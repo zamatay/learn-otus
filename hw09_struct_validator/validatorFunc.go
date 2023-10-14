@@ -18,7 +18,7 @@ var (
 	inValidatorError     = errors.New("inValidatorError")
 )
 var validateLen = func(fieldName string, reflectValue *reflect.Value, vi ValidatorItem) (*ValidationError, bool) {
-	if reflectValue.Kind() == 24 || reflectValue.Kind() == 23 {
+	if reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.String {
 		l, err := strconv.Atoi(vi.expression)
 		if err == nil {
 			values, isOk := reflectValue.Interface().([]string)
@@ -36,7 +36,7 @@ var validateLen = func(fieldName string, reflectValue *reflect.Value, vi Validat
 }
 
 var validateRegExp = func(fieldName string, reflectValue *reflect.Value, vi ValidatorItem) (*ValidationError, bool) {
-	if reflectValue.Kind() == 24 || reflectValue.Kind() == 23 {
+	if reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.String {
 		rg, _ := regexp.Compile(vi.expression)
 		value := reflectValue.String()
 		if !rg.MatchString(value) {
@@ -47,7 +47,7 @@ var validateRegExp = func(fieldName string, reflectValue *reflect.Value, vi Vali
 }
 
 var validateMinMax = func(fieldName string, reflectValue *reflect.Value, vi ValidatorItem) (*ValidationError, bool) {
-	if (reflectValue.Kind() > 1 && reflectValue.Kind() < 15) || reflectValue.Kind() == 23 {
+	if (reflectValue.Kind() > reflect.Bool && reflectValue.Kind() < reflect.Complex64) || reflectValue.Kind() == reflect.Slice {
 		l, err := strconv.Atoi(vi.expression)
 		if err == nil {
 			values, isOk := reflectValue.Interface().([]int64)
@@ -71,7 +71,7 @@ var validateMinMax = func(fieldName string, reflectValue *reflect.Value, vi Vali
 }
 
 var validateIn = func(fieldName string, reflectValue *reflect.Value, vi ValidatorItem) (*ValidationError, bool) {
-	if (reflectValue.Kind() > 1 && reflectValue.Kind() < 15) || reflectValue.Kind() == 23 || reflectValue.Kind() == 24 {
+	if (reflectValue.Kind() > reflect.Bool && reflectValue.Kind() < reflect.Complex64) || reflectValue.Kind() == reflect.Slice || reflectValue.Kind() == reflect.String {
 		values := strings.Split(vi.expression, ",")
 		if len(values) == 0 {
 			return &ValidationError{fieldName, vi.getValidStruct().err}, false
