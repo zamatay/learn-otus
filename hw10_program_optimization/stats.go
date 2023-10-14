@@ -26,7 +26,6 @@ func readBuf(r io.Reader) <-chan []byte {
 			b := make([]byte, len(s.Bytes()))
 			copy(b, s.Bytes())
 			out <- b
-			//out <- s.Bytes()
 		}
 		close(out)
 	}()
