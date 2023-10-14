@@ -2,19 +2,14 @@ package hw10programoptimization
 
 import (
 	"bufio"
-	"encoding/json"
 	"io"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+	Email string
 }
 
 type DomainStat map[string]int
@@ -23,57 +18,44 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomain(unmarshalUser(readBuf(r)), domain)
 }
 
-type users [100_000]User
-
-func readBuf(r io.Reader) <-chan string {
-	//slog.Info("begin readBuf")
-	out := make(chan string)
-
+func readBuf(r io.Reader) <-chan []byte {
+	out := make(chan []byte)
 	go func() {
-		scanner := bufio.NewScanner(r)
-		for scanner.Scan() {
-			s := scanner.Text()
-			//slog.String("scan string", s)
-			out <- s
+		s := bufio.NewScanner(r)
+		for s.Scan() {
+			b := make([]byte, len(s.Bytes()))
+			copy(b, s.Bytes())
+			out <- b
+			//out <- s.Bytes()
 		}
 		close(out)
 	}()
-	//slog.Info("end readBuf")
 	return out
 }
 
-func unmarshalUser(in <-chan string) <-chan User {
-	//slog.Info("begin unmarshalUser")
+func unmarshalUser(in <-chan []byte) <-chan User {
 	out := make(chan User)
 	go func() {
-		for line := range in {
-			var user User
-			if err := json.Unmarshal([]byte(line), &user); err != nil {
-				//slog.Error("error unmarshal", //slog.String("line", line))
+		var user *User
+		var line []byte
+		for line = range in {
+			if err := jsoniter.Unmarshal(line, &user); err != nil {
 				continue
 			}
-			//slog.Info("send User", //slog.Any("user", user))
-			out <- user
+			out <- *user
 		}
 		close(out)
 	}()
-	//slog.Info("end unmarshalUser")
 	return out
 }
 
 func countDomain(in <-chan User, domain string) (DomainStat, error) {
-	//slog.Info("begin countDomain")
-	result := make(DomainStat, 100_000)
-	d := "" + domain
-	for user := range in {
-		matched := strings.Contains(user.Email, d)
-		if matched {
-			dom := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
-			num := result[dom]
-			num++
-			result[dom] = num
+	result := make(DomainStat)
+	var user User
+	for user = range in {
+		if strings.Contains(user.Email, domain) {
+			result[strings.ToLower(user.Email[strings.Index(user.Email, "@")+1:])]++
 		}
 	}
-	//slog.Info("end countDomain")
 	return result, nil
 }

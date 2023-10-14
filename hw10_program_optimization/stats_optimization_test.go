@@ -37,6 +37,7 @@ func TestGetDomainStat_Time_And_Memory(t *testing.T) {
 		stat, err := GetDomainStat(data, "biz")
 		b.StopTimer()
 		require.NoError(t, err)
+		//_ = stat
 
 		require.Equal(t, expectedBizStat, stat)
 	}
