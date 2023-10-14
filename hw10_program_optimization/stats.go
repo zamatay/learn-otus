@@ -5,11 +5,14 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"strings"
+	"sync"
 )
 
 type User struct {
 	Email string
 }
+
+var wg sync.WaitGroup
 
 type DomainStat map[string]int
 
@@ -17,18 +20,14 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomain(unmarshalUser(readBuf(r)), domain)
 }
 
-func getBytes(b []byte) []byte {
-	bs := make([]byte, len(b))
-	copy(bs, b)
-	return bs
-}
-
 func readBuf(r io.Reader) <-chan []byte {
 	out := make(chan []byte)
 	go func() {
 		s := bufio.NewScanner(r)
 		for s.Scan() {
-			out <- getBytes(s.Bytes())
+			wg.Add(1)
+			out <- s.Bytes()
+			wg.Wait()
 		}
 		close(out)
 	}()
@@ -44,6 +43,7 @@ func unmarshalUser(in <-chan []byte) <-chan User {
 			if err := jsoniter.Unmarshal(line, &user); err != nil {
 				continue
 			}
+			wg.Done()
 			out <- *user
 		}
 		close(out)
