@@ -18,7 +18,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomain(unmarshalUser(readBuf(r)), domain)
 }
 
-const workerCount = 5
+const workerCount = 2
 
 func copyBuf(b []byte) []byte {
 	result := make([]byte, len(b))
