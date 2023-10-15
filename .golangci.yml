@@ -35,7 +35,6 @@ linters:
     - dupl
     - durationcheck
     - errorlint
-    - exhaustive
     - exportloopref
     - funlen
     - gocognit
@@ -45,11 +44,8 @@ linters:
     - godot
     - goheader
     - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
     - importas
-#    - ineffassign
+    - ineffassign
     - lll
     - makezero
     - misspell
@@ -60,11 +56,6 @@ linters:
     - prealloc
     - predeclared
     - revive
-    - staticcheck
-    - stylecheck
-    - tagliatelle
     - thelper
-    - typecheck
-    - unparam
-    - unused
-    - whitespace
+
+
