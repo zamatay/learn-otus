@@ -20,6 +20,8 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 
 const workerCount = 2
 
+var wg sync.WaitGroup
+
 func copyBuf(b []byte) []byte {
 	result := make([]byte, len(b))
 	copy(result, b)
@@ -31,7 +33,10 @@ func readBuf(r io.Reader) <-chan []byte {
 	go func() {
 		s := bufio.NewScanner(r)
 		for s.Scan() {
-			out <- copyBuf(s.Bytes())
+			//out <- copyBuf(s.Bytes())
+			wg.Add(1)
+			out <- s.Bytes()
+			wg.Wait()
 		}
 		close(out)
 	}()
@@ -41,33 +46,15 @@ func readBuf(r io.Reader) <-chan []byte {
 func unmarshalUser(in <-chan []byte) <-chan User {
 	out := make(chan User)
 	go func() {
-		worker := func() {
-			var wg sync.WaitGroup
-			ch := make(chan []byte, workerCount)
-			for i := 0; i < workerCount; i++ {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					var d []byte
-					var user *User
-					for d = range ch {
-						if err := jsoniter.Unmarshal(d, &user); err != nil {
-							continue
-						}
-						out <- *user
-					}
-				}()
+		var d []byte
+		var user *User
+		for d = range in {
+			if err := jsoniter.Unmarshal(d, &user); err != nil {
+				continue
 			}
-			var line []byte
-			for line = range in {
-				ch <- line
-			}
-			close(ch)
-			wg.Wait()
+			out <- *user
+			wg.Done()
 		}
-
-		worker()
-
 		close(out)
 	}()
 	return out
@@ -77,7 +64,7 @@ func countDomain(in <-chan User, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 	var user User
 	for user = range in {
-		if strings.Contains(user.Email, domain) {
+		if strings.HasSuffix(user.Email, domain) {
 			result[strings.ToLower(user.Email[strings.Index(user.Email, "@")+1:])]++
 		}
 	}
