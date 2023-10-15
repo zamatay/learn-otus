@@ -14,45 +14,13 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	return countDomain(unmarshalUser(readBuf(r)), domain)
-}
-
-func copyBuf(b []byte) []byte {
-	result := make([]byte, len(b))
-	copy(result, b)
-	return result
-}
-
-func readBuf(r io.Reader) <-chan []byte {
-	out := make(chan []byte)
-	go func() {
-		s := bufio.NewScanner(r)
-		for s.Scan() {
-			out <- copyBuf(s.Bytes())
-		}
-		close(out)
-	}()
-	return out
-}
-
-func unmarshalUser(in <-chan []byte) <-chan User {
-	out := make(chan User)
-	go func() {
-		var d []byte
-		var user User
-		for d = range in {
-			easyjson.Unmarshal(d, &user)
-			out <- user
-		}
-		close(out)
-	}()
-	return out
-}
-
-func countDomain(in <-chan User, domain string) (DomainStat, error) {
 	result := make(DomainStat)
+	s := bufio.NewScanner(r)
 	var user User
-	for user = range in {
+	for s.Scan() {
+		if err := easyjson.Unmarshal(s.Bytes(), &user); err != nil {
+			continue
+		}
 		if strings.HasSuffix(user.Email, domain) {
 			result[strings.ToLower(user.Email[strings.Index(user.Email, "@")+1:])]++
 		}
