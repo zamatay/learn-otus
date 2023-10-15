@@ -5,7 +5,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"io"
 	"strings"
-	"sync"
 )
 
 type User struct {
@@ -20,8 +19,6 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 
 const workerCount = 2
 
-var wg sync.WaitGroup
-
 func copyBuf(b []byte) []byte {
 	result := make([]byte, len(b))
 	copy(result, b)
@@ -33,10 +30,7 @@ func readBuf(r io.Reader) <-chan []byte {
 	go func() {
 		s := bufio.NewScanner(r)
 		for s.Scan() {
-			//out <- copyBuf(s.Bytes())
-			wg.Add(1)
-			out <- s.Bytes()
-			wg.Wait()
+			out <- copyBuf(s.Bytes())
 		}
 		close(out)
 	}()
@@ -53,7 +47,6 @@ func unmarshalUser(in <-chan []byte) <-chan User {
 				continue
 			}
 			out <- *user
-			wg.Done()
 		}
 		close(out)
 	}()
