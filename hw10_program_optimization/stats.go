@@ -2,7 +2,7 @@ package hw10programoptimization
 
 import (
 	"bufio"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/mailru/easyjson"
 	"io"
 	"strings"
 )
@@ -17,8 +17,6 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomain(unmarshalUser(readBuf(r)), domain)
 }
 
-const workerCount = 2
-
 func copyBuf(b []byte) []byte {
 	result := make([]byte, len(b))
 	copy(result, b)
@@ -26,7 +24,7 @@ func copyBuf(b []byte) []byte {
 }
 
 func readBuf(r io.Reader) <-chan []byte {
-	out := make(chan []byte, workerCount)
+	out := make(chan []byte)
 	go func() {
 		s := bufio.NewScanner(r)
 		for s.Scan() {
@@ -41,10 +39,10 @@ func unmarshalUser(in <-chan []byte) <-chan User {
 	out := make(chan User)
 	go func() {
 		var d []byte
-		var user *User
+		var user User
 		for d = range in {
-			jsoniter.Unmarshal(d, &user)
-			out <- *user
+			easyjson.Unmarshal(d, &user)
+			out <- user
 		}
 		close(out)
 	}()
