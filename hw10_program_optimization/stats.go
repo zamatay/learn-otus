@@ -43,9 +43,7 @@ func unmarshalUser(in <-chan []byte) <-chan User {
 		var d []byte
 		var user *User
 		for d = range in {
-			if err := jsoniter.Unmarshal(d, &user); err != nil {
-				continue
-			}
+			jsoniter.Unmarshal(d, &user)
 			out <- *user
 		}
 		close(out)
