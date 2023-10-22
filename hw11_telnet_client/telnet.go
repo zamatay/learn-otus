@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"log/slog"
+	"log"
 	"net"
 	"time"
 )
@@ -46,7 +46,7 @@ func (t *tc) Connect() error {
 	var err error
 	t.conn, err = net.DialTimeout("tcp", t.address, t.timeout)
 	if err != nil {
-		slog.Error("connect", err)
+		log.Fatal("connect", err)
 		return err
 	}
 	t.scan = bufio.NewScanner(t.conn)
