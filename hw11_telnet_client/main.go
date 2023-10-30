@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func run() {
 	c := NewTelnetClient(programOptions.address, programOptions.timeout, io.NopCloser(os.Stdin), os.Stdout)
 	c.Connect()
 	ch := make(chan os.Signal, 2)
-	signal.Notify(ch, os.Kill, os.Interrupt)
+	signal.Notify(ch, syscall.SIGTERM, os.Interrupt)
 
 	defer func() {
 		if err := c.Close(); err != nil {
