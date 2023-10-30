@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
@@ -29,7 +28,6 @@ func main() {
 	if !flag.Parsed() {
 		flag.Parse()
 	}
-	slog.Info("Flag", slog.Duration("timeout", programOptions.timeout))
 	if len(os.Args) < 3 {
 		log.Fatal("hostAndPortInvalid")
 	}
@@ -42,6 +40,7 @@ func main() {
 func run() {
 	programOptions.address = fmt.Sprintf("%s:%s", programOptions.host, programOptions.port)
 	c := NewTelnetClient(programOptions.address, programOptions.timeout, io.NopCloser(os.Stdin), os.Stdout)
+	c.Connect()
 	ch := make(chan os.Signal)
 	signal.Notify(ch, os.Kill, os.Interrupt)
 
