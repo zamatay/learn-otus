@@ -41,7 +41,7 @@ func run() {
 	programOptions.address = fmt.Sprintf("%s:%s", programOptions.host, programOptions.port)
 	c := NewTelnetClient(programOptions.address, programOptions.timeout, io.NopCloser(os.Stdin), os.Stdout)
 	c.Connect()
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 2)
 	signal.Notify(ch, os.Kill, os.Interrupt)
 
 	defer func() {

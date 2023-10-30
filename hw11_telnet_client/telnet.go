@@ -32,14 +32,13 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 }
 
 type tc struct {
-	address    string
-	timeout    time.Duration
-	conn       net.Conn
-	connection bool
-	scan       *bufio.Scanner
-	inScan     *bufio.Scanner
-	in         io.Reader
-	out        io.Writer
+	address string
+	timeout time.Duration
+	conn    net.Conn
+	scan    *bufio.Scanner
+	inScan  *bufio.Scanner
+	in      io.Reader
+	out     io.Writer
 }
 
 func (t *tc) Connect() error {
