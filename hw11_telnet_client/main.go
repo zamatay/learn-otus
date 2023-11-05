@@ -90,5 +90,4 @@ func run() {
 	if err := g.Wait(); err != nil {
 		log.Println(err)
 	}
-
 }
