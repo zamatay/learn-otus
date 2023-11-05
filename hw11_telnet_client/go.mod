@@ -2,7 +2,10 @@ module github.com/zamatay/learn-otus/hw11_telnet_client
 
 go 1.21
 
-require github.com/stretchr/testify v1.7.0
+require (
+	github.com/stretchr/testify v1.7.0
+	golang.org/x/sync v0.5.0
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

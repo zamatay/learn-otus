@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 )
@@ -41,48 +42,53 @@ func main() {
 func run() {
 	programOptions.address = fmt.Sprintf("%s:%s", programOptions.host, programOptions.port)
 	c := NewTelnetClient(programOptions.address, programOptions.timeout, io.NopCloser(os.Stdin), os.Stdout)
-	c.Connect()
-	ch := make(chan os.Signal, 2)
-	signal.Notify(ch, syscall.SIGTERM, os.Interrupt)
+	if err := c.Connect(); err != nil {
+		log.Println(err)
+		return
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	defer stop()
 
 	defer func() {
+		log.Println("Close connection")
 		if err := c.Close(); err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	g, gCtx := errgroup.WithContext(ctx)
 
-	go func() {
-		defer wg.Done()
+	g.Go(func() error {
 		for {
 			select {
-			case <-ch:
-				return
+			case <-gCtx.Done():
+				return nil
 			default:
 				if err := c.Send(); err != nil {
 					log.Fatal(err)
-					return
+					return nil
 				}
 			}
 		}
-	}()
+	})
 
-	go func() {
-		defer wg.Done()
+	g.Go(func() error {
 		for {
 			select {
-			case <-ch:
-				return
+			case <-gCtx.Done():
+				return nil
 			default:
 				if err := c.Receive(); err != nil {
 					log.Fatal(err)
-					return
+					return nil
 				}
 			}
 		}
-	}()
+	})
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		log.Println(err)
+	}
+
 }
