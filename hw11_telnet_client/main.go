@@ -57,7 +57,10 @@ func run() {
 
 	g.Go(func() error {
 		<-gCtx.Done()
-		c.Close()
+		err := c.Close()
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 
