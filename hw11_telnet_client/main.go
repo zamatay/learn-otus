@@ -43,48 +43,42 @@ func run() {
 	programOptions.address = fmt.Sprintf("%s:%s", programOptions.host, programOptions.port)
 	c := NewTelnetClient(programOptions.address, programOptions.timeout, io.NopCloser(os.Stdin), os.Stdout)
 	if err := c.Connect(); err != nil {
-		log.Println(err)
-		return
+		log.Fatal(err)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
-	defer stop()
-
-	defer func() {
-		log.Println("Close connection")
-		if err := c.Close(); err != nil {
-			log.Fatal(err)
-		}
+	ctx, cancel := context.WithCancel(context.Background())
+	g, gCtx := errgroup.WithContext(ctx)
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+		<-c
+		cancel()
 	}()
 
-	g, gCtx := errgroup.WithContext(ctx)
-
 	g.Go(func() error {
-		for {
-			select {
-			case <-gCtx.Done():
-				return nil
-			default:
-				if err := c.Send(); err != nil {
-					log.Fatal(err)
-					return nil
-				}
-			}
-		}
+		<-gCtx.Done()
+		c.Close()
+		return nil
 	})
 
 	g.Go(func() error {
 		for {
-			select {
-			case <-gCtx.Done():
-				return nil
-			default:
-				if err := c.Receive(); err != nil {
-					log.Fatal(err)
-					return nil
-				}
+			if err := c.Send(); err != nil {
+				log.Print(err)
+				break
 			}
 		}
+		return nil
+	})
+
+	g.Go(func() error {
+		for {
+			if err := c.Receive(); err != nil {
+				log.Print(err)
+				break
+			}
+		}
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {
