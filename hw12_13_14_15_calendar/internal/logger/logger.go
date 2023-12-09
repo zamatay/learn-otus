@@ -37,19 +37,19 @@ func New(level string) *Logger {
 }
 
 func (l Logger) Debug(msg string, args ...any) {
-	l.Log.Debug(msg, args)
+	l.Log.Debug(msg, args...)
 }
 
 func (l Logger) Info(msg string, args ...any) {
-	l.Log.Info(msg, args)
+	l.Log.Info(msg, args...)
 }
 
 func (l Logger) Error(msg string, args ...any) {
-	l.Log.Error(msg, args)
+	l.Log.Error(msg, args...)
 }
 
 func (l Logger) Warn(msg string, args ...any) {
-	l.Log.Warn(msg, args)
+	l.Log.Warn(msg, args...)
 }
 
 func (l Logger) Fatal(msg string) {
