@@ -22,21 +22,21 @@ type CLoserStorage interface {
 }
 
 func main() {
-	// Инициализируем контекст завершения
+	//Инициализируем контекст завершения
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	quit := initQuitChannelOnSignals()
 
-	// Подгружаем конфигурацию
+	//Подгружаем конфигурацию
 	app.LoadConfig()
 	config := configs.NewConfig()
 
-	// Инициализируем хранилище
+	//Инициализируем хранилище
 	app.New(logger.New(config.Log.Level))
 	storage := getStorage(ctx, config)
 	app.Calendar.Storage = storage
 
-	// Стартуем сервер
+	//Стартуем сервер
 	server := internalhttp.NewServer(config.Http)
 
 	app.Calendar.Shutdown(ctx, quit, server, storage)
