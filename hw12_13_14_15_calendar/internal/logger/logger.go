@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/app"
 	"log"
 	"log/slog"
 	"os"
@@ -17,7 +18,7 @@ func GetLog() *Logger {
 	return logger
 }
 
-func New(level string) *Logger {
+func New(level string) app.Logger {
 	var l slog.Level
 	switch level {
 	case "debug":
