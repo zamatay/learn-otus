@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-type Http struct {
+type HTTP struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
 }
@@ -17,7 +17,7 @@ type Config struct {
 	DevEnv string       `yaml:"env" env-default:"local"`
 	Log    LoggerConfig `yaml:"logger"`
 	DB     DBConfig     `yaml:"db"`
-	HTTP   Http         `yaml:"http"`
+	HTTP   HTTP         `yaml:"http"`
 }
 
 type LoggerConfig struct {

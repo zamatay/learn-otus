@@ -10,11 +10,11 @@ import (
 )
 
 type Server struct {
-	cfg     configs.Http
+	cfg     configs.HTTP
 	httpSrv *http.Server
 }
 
-func NewServer(cfg configs.Http) *Server {
+func NewServer(cfg configs.HTTP) *Server {
 	httpSrv := &http.Server{Addr: fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)}
 	m := http.NewServeMux()
 
