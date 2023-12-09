@@ -37,7 +37,7 @@ func main() {
 	app.Calendar.Storage = storage
 
 	//Стартуем сервер
-	server := internalhttp.NewServer(config.Http)
+	server := internalhttp.NewServer(config.HTTP)
 
 	app.Calendar.Shutdown(ctx, quit, server, storage)
 

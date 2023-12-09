@@ -20,14 +20,14 @@ func (s Storage) Close() error {
 func (s Storage) AddEvent(event domain.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.storage[event.Id] = event
+	s.storage[event.ID] = event
 	return nil
 }
 
 func (s Storage) EditEvent(id int64, event domain.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.storage[event.Id] = event
+	s.storage[event.ID] = event
 	return nil
 }
 

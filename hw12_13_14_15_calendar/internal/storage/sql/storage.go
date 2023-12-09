@@ -83,7 +83,7 @@ func (s Storage) AddEvent(event domain.Event) error {
 		sql.Named("date", event.Date),
 		sql.Named("date_interval", event.DateInterval),
 		sql.Named("description", event.Description),
-		sql.Named("user_id", event.UserId),
+		sql.Named("user_id", event.UserID),
 	)
 	return nil
 }
@@ -95,8 +95,8 @@ func (s Storage) EditEvent(id int64, event domain.Event) error {
 		sql.Named("date", event.Date),
 		sql.Named("date_interval", event.DateInterval),
 		sql.Named("description", event.Description),
-		sql.Named("user_id", event.UserId),
-		sql.Named("id", event.Id),
+		sql.Named("user_id", event.UserID),
+		sql.Named("id", event.ID),
 	)
 	return nil
 }

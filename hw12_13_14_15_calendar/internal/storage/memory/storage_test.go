@@ -18,7 +18,7 @@ func TestStorage_AddEvent(t *testing.T) {
 	}{
 		{
 			name: "addEvent",
-			args: args{event: domain.Event{Id: 1, Title: "New", Date: time, DateInterval: 10, Description: "description"}},
+			args: args{event: domain.Event{ID: 1, Title: "New", Date: time, DateInterval: 10, Description: "description"}},
 		},
 	}
 	for _, tt := range tests {
@@ -42,7 +42,7 @@ func TestStorage_EditEvent(t *testing.T) {
 	}{
 		{
 			name: "addEvent&EditEvent",
-			args: args{event: domain.Event{Id: 1, Title: "New", Date: time, DateInterval: 10, Description: "description"}},
+			args: args{event: domain.Event{ID: 1, Title: "New", Date: time, DateInterval: 10, Description: "description"}},
 		},
 	}
 	for _, tt := range tests {
@@ -51,7 +51,7 @@ func TestStorage_EditEvent(t *testing.T) {
 			if err := s.AddEvent(tt.args.event); err != nil {
 				t.Errorf("AddEvent() error = %v, wantErr %v", err, s.storage)
 			}
-			event := domain.Event{Id: 1, Title: "Edit", Date: time, DateInterval: 10, Description: "description"}
+			event := domain.Event{ID: 1, Title: "Edit", Date: time, DateInterval: 10, Description: "description"}
 			if err := s.EditEvent(1, event); (err != nil) && reflect.DeepEqual(event, s.storage[1]) {
 				t.Errorf("AddEvent() error = %v, wantErr %v", err, s.storage)
 			}
@@ -71,8 +71,8 @@ func TestStorage_RemoveEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := New()
-			event1 := domain.Event{Id: 1, Title: "New1", Date: time, DateInterval: 10, Description: "description"}
-			event2 := domain.Event{Id: 2, Title: "New2", Date: time, DateInterval: 10, Description: "description"}
+			event1 := domain.Event{ID: 1, Title: "New1", Date: time, DateInterval: 10, Description: "description"}
+			event2 := domain.Event{ID: 2, Title: "New2", Date: time, DateInterval: 10, Description: "description"}
 			if err := s.AddEvent(event1); err != nil {
 				t.Errorf("AddEvent() error = %v, wantErr %v", err, s.storage)
 			}
