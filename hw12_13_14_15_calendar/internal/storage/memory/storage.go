@@ -57,7 +57,7 @@ func (s Storage) GetEvent(id int64) (domain.Event, error) {
 	return s.storage[id], nil
 }
 
-func New(_ any) *Storage {
+func New() *Storage {
 	return &Storage{
 		storage: make(map[int64]domain.Event, initialSize),
 	}

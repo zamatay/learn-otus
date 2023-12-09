@@ -16,7 +16,7 @@ type Http struct {
 type Config struct {
 	DevEnv string       `yaml:"env" env-default:"local"`
 	Log    LoggerConfig `yaml:"logger"`
-	DB     DBConfig     `yaml:"DB"`
+	DB     DBConfig     `yaml:"db"`
 	Http   Http         `yaml:"http"`
 }
 

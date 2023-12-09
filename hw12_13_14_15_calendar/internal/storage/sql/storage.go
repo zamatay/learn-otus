@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
 	"time"
@@ -42,7 +43,7 @@ type Storage struct {
 	prepareSql Prepare
 }
 
-func New(ctx context.Context, cfg *main.DBConfig) *Storage {
+func New(ctx context.Context, cfg *configs.DBConfig) *Storage {
 	connectionString := fmt.Sprintf(
 		cfg.Host, cfg.Port, cfg.User, cfg.Password)
 	conn, err := sqlx.Open(cfg.Driver, connectionString)
@@ -63,7 +64,7 @@ func New(ctx context.Context, cfg *main.DBConfig) *Storage {
 	}
 }
 
-func (s *Storage) prepare(item *PrepareItem) error {
+func (s Storage) prepare(item *PrepareItem) error {
 	if item.stmt == nil {
 		var err error
 		item.stmt, err = s.connect.Preparex(item.sql)
@@ -75,7 +76,7 @@ func (s *Storage) prepare(item *PrepareItem) error {
 	return nil
 }
 
-func (s *Storage) AddEvent(event domain.Event) error {
+func (s Storage) AddEvent(event domain.Event) error {
 	s.prepare(&s.prepareSql.AddEvent)
 	s.prepareSql.AddEvent.stmt.ExecContext(s.ctx,
 		sql.Named("title", event.Title),
@@ -87,7 +88,7 @@ func (s *Storage) AddEvent(event domain.Event) error {
 	return nil
 }
 
-func (s *Storage) EditEvent(id int64, event domain.Event) error {
+func (s Storage) EditEvent(id int64, event domain.Event) error {
 	s.prepare(&s.prepareSql.EditEvent)
 	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
 		sql.Named("title", event.Title),
@@ -100,7 +101,7 @@ func (s *Storage) EditEvent(id int64, event domain.Event) error {
 	return nil
 }
 
-func (s *Storage) RemoveEvent(id int64) error {
+func (s Storage) RemoveEvent(id int64) error {
 	s.prepare(&s.prepareSql.RemoveEvent)
 	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
 		sql.Named("id", id),
@@ -108,7 +109,7 @@ func (s *Storage) RemoveEvent(id int64) error {
 	return nil
 }
 
-func (s *Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
+func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 	s.prepare(&s.prepareSql.ListEvent)
 	list := make([]domain.Event, 0, 0)
 	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &list,
@@ -118,7 +119,7 @@ func (s *Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 	return list
 }
 
-func (s *Storage) GetEvent(id int64) (domain.Event, error) {
+func (s Storage) GetEvent(id int64) (domain.Event, error) {
 	s.prepare(&s.prepareSql.ListEvent)
 	value := domain.Event{}
 	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &value,
@@ -127,7 +128,7 @@ func (s *Storage) GetEvent(id int64) (domain.Event, error) {
 	return value, nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s Storage) Close() error {
 	s.connect.Close()
 	return nil
 }
