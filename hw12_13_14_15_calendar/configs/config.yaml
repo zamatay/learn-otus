@@ -1,0 +1,11 @@
+logger:
+  level: "info"
+db:
+  driver: "inMemory"
+  host: "0.0.0.0"
+  port: "5432"
+  user: "sa"
+  password: "sa"
+http:
+  host: "0.0.0.0"
+  port: "8080"

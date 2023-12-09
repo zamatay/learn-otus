@@ -7,11 +7,15 @@ import (
 )
 
 type Logger struct {
-	*slog.Logger // TODO
+	Log *slog.Logger // TODO
 }
 
 // Log
-var Log Logger
+var logger *Logger
+
+func GetLog() *Logger {
+	return logger
+}
 
 func New(level string) *Logger {
 	var l slog.Level
@@ -25,26 +29,27 @@ func New(level string) *Logger {
 	default:
 		l = slog.LevelError
 	}
-	return &Logger{
-		slog.New(
+	logger = &Logger{
+		Log: slog.New(
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: l})),
 	}
+	return logger
 }
 
 func (l Logger) Debug(msg string, args ...any) {
-	l.Debug(msg, args)
+	l.Log.Debug(msg, args)
 }
 
 func (l Logger) Info(msg string, args ...any) {
-	l.Info(msg, args)
+	l.Log.Info(msg, args)
 }
 
 func (l Logger) Error(msg string, args ...any) {
-	l.Error(msg, args)
+	l.Log.Error(msg, args)
 }
 
 func (l Logger) Warn(msg string, args ...any) {
-	l.Warn(msg, args)
+	l.Log.Warn(msg, args)
 }
 
 func (l Logger) Fatal(msg string) {
