@@ -2,6 +2,39 @@ syntax = "proto3";
 
 package event;
 
-message Event {
-    //TODO
+option go_package = "otus/home_work/event/v1";
+//option go_package = "example.com/project/protos/fizz";
+
+service Events{
+    rpc AddEvent (EventRequest) returns (OkResponse);
+    rpc EditEvent(EventRequest) returns (OkResponse);
+    rpc RemoveEvent(IdRequest) returns (OkResponse);
+    rpc List(DateRequest) returns (OkResponse);
+    rpc GetEvent(IdRequest) returns (EventDataSet);
+}
+
+message DateRequest{
+    uint64 DateFrom = 1;
+    uint64 DateTo = 2;
+}
+
+message IdRequest {
+    int32 ID = 1;
+}
+
+message EventRequest {
+    int32 ID = 1;
+    string Title = 2;
+    uint64 Date = 3;
+    int32 DateInterval = 4;
+    string Description = 5;
+    int32 UserID = 6;
+}
+
+message EventDataSet {
+    repeated EventRequest Data = 1;
+}
+
+message OkResponse {
+    bool IsOk = 1;
 }

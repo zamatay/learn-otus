@@ -12,7 +12,7 @@
 ---
 Пример использования:
 ```bash
-$ go-envdir /path/to/env/dir command arg1 arg2
+$ gen-envdir /path/to/env/dir command arg1 arg2
 ```
 Если в директории `/path/to/env/dir` содержатся файлы:
 * `FOO` с содержимым `123`;

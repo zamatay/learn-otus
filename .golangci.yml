@@ -12,13 +12,13 @@ linters-settings:
     rules:
       main:
         files:
-          - "!**/*_a _file.go"
+          - "!**/*_a _file.gen"
         allow:
           - $gostd
           - github.com/stretchr/testify/require
 issues:
   exclude-rules:
-    - path: _test\.go
+    - path: _test\.gen
       linters:
         - errcheck
         - dupl

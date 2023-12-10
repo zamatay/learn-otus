@@ -3,16 +3,23 @@ module github.com/zamatay/learn-otus/hw12_13_14_15_calendar
 go 1.21
 
 require (
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jmoiron/sqlx v1.3.5
-	gitlab.com/tymonx/go-patterns v0.2.0
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
+	google.golang.org/protobuf v1.31.0
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	gitlab.com/tymonx/go-error v1.1.0 // indirect
-	gitlab.com/tymonx/go-formatter v1.0.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	google.golang.org/genproto v0.0.0-20231030173426-d783a09b4405 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20231106174013-bbf56f31fb17 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231030173426-d783a09b4405 // indirect
+	google.golang.org/grpc v1.59.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )

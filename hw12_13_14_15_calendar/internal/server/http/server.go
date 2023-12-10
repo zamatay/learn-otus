@@ -32,6 +32,7 @@ func NewServer(cfg configs.HTTP) *Server {
 }
 
 func (s *Server) Start(ctx context.Context) error {
+	app.Calendar.Logger.Info("Запускаем календарь...")
 	err := s.httpSrv.ListenAndServe()
 	if err != nil {
 		app.Calendar.Logger.Fatal("Не смогли запустить http сервер" + err.Error())

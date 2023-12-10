@@ -5,9 +5,9 @@
 
 Примеры вызовов:
 ```bash
-$ go-telnet --timeout=10s host port
-$ go-telnet mysite.ru 8080
-$ go-telnet --timeout=3s 1.1.1.1 123
+$ gen-telnet --timeout=10s host port
+$ gen-telnet mysite.ru 8080
+$ gen-telnet --timeout=3s 1.1.1.1 123
 ```
 
 * Программа должна подключаться к указанному хосту (IP или доменное имя) и порту по протоколу TCP.
@@ -35,7 +35,7 @@ Bye, client!
 ```
 
 ```bash
-$ go-telnet --timeout=5s localhost 4242
+$ gen-telnet --timeout=5s localhost 4242
 ...Connected to localhost:4242
 Hello from NC
 I'm telnet client
@@ -60,7 +60,7 @@ Bye-bye
 
 2) Клиент завершает ввод
 ```bash
-$ go-telnet localhost 4242
+$ gen-telnet localhost 4242
 ...Connected to localhost:4242
 I
 will be
