@@ -8,22 +8,23 @@ import (
 
 func main() {
 	//Инициализируем контекст завершения
-	ctx, quit, cancel := app.InitShutDowner()
+	ctx, cancel := app.InitShutDowner()
 
 	//Инициализируем хранилище
 	app.New()
 	app.Calendar.Init(ctx)
 
 	//Стартуем сервер
-	server := internalhttp.NewServer(app.Calendar.Config.HTTP)
+	server := internalhttp.NewServer(ctx, app.Calendar.Config.Grpc, app.Calendar.Config.HTTP)
 	app.Calendar.AddClosers(server)
 
 	//Shutdown
-	app.Shutdown(ctx, quit, app.Calendar.Closers())
+	quit := app.Calendar.Shutdown(ctx, app.Calendar.Closers())
 
 	if err := server.Start(ctx); err != nil {
 		app.Calendar.Logger.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+	<-quit
 }

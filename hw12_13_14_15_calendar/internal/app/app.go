@@ -66,7 +66,7 @@ func (a *App) AddClosers(closer io.Closer) {
 	a.closers = append(a.closers, closer)
 }
 
-func (a App) LoadConfig() {
+func (a *App) LoadConfig() {
 	var configFile string
 	flag.StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
 	flag.Parse()
@@ -77,8 +77,8 @@ func (a App) LoadConfig() {
 	}
 }
 
-func (a App) Init(ctx context.Context) {
-	a.LoadConfig()
+func (a *App) Init(ctx context.Context) {
+	//a.LoadConfig()
 	storage := getStorage(ctx, a.Config)
 	a.AddClosers(storage)
 	a.Storage = storage
@@ -102,25 +102,25 @@ func getStorage(ctx context.Context, cfg *configs.Config) CLoserStorage {
 	return nil
 }
 
-func Shutdown(ctx context.Context, quit <-chan os.Signal, closers []io.Closer) {
+func (a *App) Shutdown(ctx context.Context, closers []io.Closer) chan struct{} {
+	quit := make(chan struct{})
 	go func() {
 		select {
 		case <-ctx.Done():
 			log.Info("api - Start - ctx.Done")
-		case s := <-quit:
-			log.Info("app - Start - signal: " + s.String())
 		}
 
 		for _, close := range closers {
 			close.Close()
 		}
+		quit <- struct{}{}
+		close(quit)
 	}()
+	return quit
 }
 
-func InitShutDowner() (context.Context, chan os.Signal, context.CancelFunc) {
+func InitShutDowner() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	return ctx, quit, cancel
+	signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+	return ctx, cancel
 }

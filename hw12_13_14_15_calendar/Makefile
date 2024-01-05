@@ -38,4 +38,9 @@ migration:
 .PHONY: generate
 generate:
 	@echo "Генерация скриптов protobuf."
-	protoc -I proto ./api/EventService.proto --go_out=./api/gen/ --go_opt=paths=source_relative --go-grpc_out=./api/gen
+	protoc -I api ./api/EventService.proto --go_out=./api/gen/ --go_opt=paths=source_relative --go-grpc_out=./api/gen \
+		--plugin=protoc-gen-grpc-gateway=${GOPATH}/bin/protoc-gen-grpc-gateway \
+		--grpc-gateway_out ./api/gen/ \
+		--grpc-gateway_opt logtostderr=true \
+		--grpc-gateway_opt paths=source_relative \
+		--grpc-gateway_opt generate_unbound_methods=true \
