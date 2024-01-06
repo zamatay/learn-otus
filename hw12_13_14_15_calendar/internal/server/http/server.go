@@ -35,15 +35,18 @@ func (server *Server) AddEvent(ctx context.Context, request *v1.EventRequest) (*
 	app.Calendar.Storage.AddEvent(*domain.NewEvent(request.ID, request.DateInterval, request.Title, request.Description, request.UserID, request.Date))
 	return &v1.OkResponse{IsOk: true}, nil
 }
+
 func (server *Server) EditEvent(ctx context.Context, request *v1.EventRequest) (*v1.OkResponse, error) {
 	event := *domain.NewEvent(request.ID, request.DateInterval, request.Title, request.Description, request.UserID, request.Date)
 	app.Calendar.Storage.EditEvent(event.ID, event)
 	return &v1.OkResponse{}, nil
 }
+
 func (server *Server) RemoveEvent(ctx context.Context, request *v1.IdRequest) (*v1.OkResponse, error) {
 	app.Calendar.Storage.RemoveEvent(request.Id)
 	return &v1.OkResponse{}, nil
 }
+
 func (server *Server) List(ctx context.Context, request *v1.DateRequest) (eds *v1.EventDataSet, err error) {
 	events := app.Calendar.Storage.List(time.Unix(int64(request.DateFrom), 0), time.Unix(int64(request.DateTo), 0))
 	for _, event := range events {
@@ -92,19 +95,22 @@ func NewServer(ctx context.Context, grpcCfg configs.Grpc, httpCfg configs.HTTP) 
 	return s
 }
 
+func (s *Server) getListener() net.Listener {
+	lis, err := net.Listen("tcp", s.GetHost())
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	return lis
+}
+
 func (s *Server) Start(ctx context.Context) error {
 	app.Calendar.Logger.Info("Запускаем календарь...")
 
 	go s.runRest(ctx)
 
-	lis, err := net.Listen("tcp", s.GetHost())
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	err = s.server.Serve(lis)
-	if err != nil {
-		app.Calendar.Logger.Fatal("Не смогли запустить http сервер" + err.Error())
+	if err := s.server.Serve(s.getListener()); err != nil {
+		app.Calendar.Logger.Error("Не смогли запустить http сервер" + err.Error())
+		return err
 	}
 
 	return nil
