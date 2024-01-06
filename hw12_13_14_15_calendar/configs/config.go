@@ -3,9 +3,10 @@ package configs
 import (
 	"errors"
 	"flag"
-	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type HTTP struct {

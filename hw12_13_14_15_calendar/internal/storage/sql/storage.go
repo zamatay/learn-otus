@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
-	"time"
 )
 
 const (
@@ -29,7 +30,7 @@ type PrepareItem struct {
 	sql  string
 }
 
-type Prepare struct {
+type prepare struct {
 	AddEvent    PrepareItem
 	EditEvent   PrepareItem
 	RemoveEvent PrepareItem
@@ -40,7 +41,7 @@ type Prepare struct {
 type Storage struct {
 	connect    *sqlx.DB
 	ctx        context.Context
-	prepareSql Prepare
+	prepareSql prepare
 }
 
 func New(ctx context.Context, cfg *configs.DBConfig) *Storage {
@@ -50,7 +51,7 @@ func New(ctx context.Context, cfg *configs.DBConfig) *Storage {
 	if err != nil {
 		return nil
 	}
-	pSql := Prepare{
+	pSql := prepare{
 		AddEvent:    PrepareItem{stmt: nil, sql: sqlAddEvent},
 		EditEvent:   PrepareItem{stmt: nil, sql: sqlUpdateEvent},
 		RemoveEvent: PrepareItem{stmt: nil, sql: sqlRemoveEvent},
@@ -77,7 +78,9 @@ func (s Storage) prepare(item *PrepareItem) error {
 }
 
 func (s Storage) AddEvent(event domain.Event) error {
-	s.prepare(&s.prepareSql.AddEvent)
+	if err := s.prepare(&s.prepareSql.AddEvent); err != nil {
+		return err
+	}
 	s.prepareSql.AddEvent.stmt.ExecContext(s.ctx,
 		sql.Named("title", event.Title),
 		sql.Named("date", event.Date),
@@ -88,8 +91,10 @@ func (s Storage) AddEvent(event domain.Event) error {
 	return nil
 }
 
-func (s Storage) EditEvent(id int64, event domain.Event) error {
-	s.prepare(&s.prepareSql.EditEvent)
+func (s Storage) EditEvent(_ int64, event domain.Event) error {
+	if err := s.prepare(&s.prepareSql.EditEvent); err != nil {
+		return err
+	}
 	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
 		sql.Named("title", event.Title),
 		sql.Named("date", event.Date),
@@ -102,7 +107,9 @@ func (s Storage) EditEvent(id int64, event domain.Event) error {
 }
 
 func (s Storage) RemoveEvent(id int64) error {
-	s.prepare(&s.prepareSql.RemoveEvent)
+	if err := s.prepare(&s.prepareSql.RemoveEvent); err != nil {
+		return err
+	}
 	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
 		sql.Named("id", id),
 	)
@@ -110,7 +117,9 @@ func (s Storage) RemoveEvent(id int64) error {
 }
 
 func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
-	s.prepare(&s.prepareSql.ListEvent)
+	if err := s.prepare(&s.prepareSql.ListEvent); err != nil {
+		return nil
+	}
 	list := make([]domain.Event, 0, 0)
 	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &list,
 		sql.Named("date1", beginDate),
@@ -120,7 +129,9 @@ func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 }
 
 func (s Storage) GetEvent(id int64) (domain.Event, error) {
-	s.prepare(&s.prepareSql.ListEvent)
+	if err := s.prepare(&s.prepareSql.ListEvent); err != nil {
+		return domain.Event{}, err
+	}
 	value := domain.Event{}
 	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &value,
 		sql.Named("id", id),

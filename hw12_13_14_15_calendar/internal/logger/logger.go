@@ -10,7 +10,6 @@ type Logger struct {
 	Log *slog.Logger // TODO
 }
 
-// Log
 var logger *Logger
 
 func GetLog() *Logger {

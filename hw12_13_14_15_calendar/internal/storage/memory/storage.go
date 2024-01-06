@@ -1,9 +1,10 @@
 package memorystorage
 
 import (
-	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"sync"
 	"time"
+
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 )
 
 const initialSize = 100
@@ -24,7 +25,7 @@ func (s Storage) AddEvent(event domain.Event) error {
 	return nil
 }
 
-func (s Storage) EditEvent(id int64, event domain.Event) error {
+func (s Storage) EditEvent(_ int64, event domain.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.storage[event.ID] = event

@@ -111,7 +111,9 @@ func (a *App) Shutdown(ctx context.Context, closers []io.Closer) chan struct{} {
 		}
 
 		for _, close := range closers {
-			close.Close()
+			if err := close.Close(); err != nil {
+				log.Error("error close", err)
+			}
 		}
 		quit <- struct{}{}
 		close(quit)
