@@ -18,6 +18,11 @@ type Config struct {
 	Log    LoggerConfig `yaml:"logger"`
 	DB     DBConfig     `yaml:"db"`
 	HTTP   HTTP         `yaml:"http"`
+	Grpc   Grpc         `yaml:"grpc"`
+}
+
+type Grpc struct {
+	Port int
 }
 
 type LoggerConfig struct {

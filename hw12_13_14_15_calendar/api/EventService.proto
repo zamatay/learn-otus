@@ -2,6 +2,61 @@ syntax = "proto3";
 
 package event;
 
-message Event {
-    //TODO
+option go_package = "api/event/v1";
+import "google/api/annotations.proto";
+
+service Events{
+    rpc AddEvent (EventRequest) returns (OkResponse){
+        option (google.api.http) = {
+            post: "/event/add"
+            body: "*"
+        };
+    };
+    rpc EditEvent(EventRequest) returns (OkResponse){
+        option (google.api.http) = {
+            post: "/event/edit"
+            body: "*"
+        };
+    };
+    rpc RemoveEvent(IdRequest) returns (OkResponse){
+        option (google.api.http) = {
+            delete: "/event/remove/{id}"
+        };
+    };
+    rpc List(DateRequest) returns (EventDataSet){
+        option (google.api.http) = {
+            get: "/event/list"
+        };
+    };
+    rpc GetEvent(IdRequest) returns (EventRequest){
+        option (google.api.http) = {
+            get: "/event/get/{id}"
+        };
+    };
+}
+
+message DateRequest{
+    uint64 DateFrom = 1;
+    uint64 DateTo = 2;
+}
+
+message IdRequest {
+    int64 id = 1;
+}
+
+message EventRequest {
+    int64 ID = 1;
+    string Title = 2;
+    uint64 Date = 3;
+    int32 DateInterval = 4;
+    string Description = 5;
+    int32 UserID = 6;
+}
+
+message EventDataSet {
+    repeated EventRequest Data = 1;
+}
+
+message OkResponse {
+    bool IsOk = 1;
 }
