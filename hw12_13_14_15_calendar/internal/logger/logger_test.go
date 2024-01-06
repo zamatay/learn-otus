@@ -3,5 +3,8 @@ package logger
 import "testing"
 
 func TestLogger(t *testing.T) {
-	// TODO
+	logger := New("info")
+	if logger == nil {
+		t.Fail()
+	}
 }
