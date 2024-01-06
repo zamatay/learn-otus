@@ -4,16 +4,17 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
-	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
-	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
-	memorystorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/sql"
 	"io"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
+	memorystorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var (
