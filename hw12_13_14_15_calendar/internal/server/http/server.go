@@ -32,12 +32,12 @@ func (server *Server) GetHost() string {
 }
 
 func (server *Server) AddEvent(ctx context.Context, request *v1.EventRequest) (*v1.OkResponse, error) {
-	app.Calendar.Storage.AddEvent(*domain.NewEvent(request.ID, request.DateInterval, request.Title, request.Description, request.UserID, request.Date))
+	app.Calendar.Storage.AddEvent(*domain.NewEvent(request.ID, request.UserID, request.Title, request.Description, request.DateInterval, request.Date))
 	return &v1.OkResponse{IsOk: true}, nil
 }
 
 func (server *Server) EditEvent(ctx context.Context, request *v1.EventRequest) (*v1.OkResponse, error) {
-	event := *domain.NewEvent(request.ID, request.DateInterval, request.Title, request.Description, request.UserID, request.Date)
+	event := *domain.NewEvent(request.ID, request.UserID, request.Title, request.Description, request.DateInterval, request.Date)
 	app.Calendar.Storage.EditEvent(event.ID, event)
 	return &v1.OkResponse{}, nil
 }
@@ -47,12 +47,15 @@ func (server *Server) RemoveEvent(ctx context.Context, request *v1.IdRequest) (*
 	return &v1.OkResponse{}, nil
 }
 
-func (server *Server) List(ctx context.Context, request *v1.DateRequest) (eds *v1.EventDataSet, err error) {
+func (server *Server) List(ctx context.Context, request *v1.DateRequest) (*v1.EventDataSet, error) {
 	events := app.Calendar.Storage.List(time.Unix(int64(request.DateFrom), 0), time.Unix(int64(request.DateTo), 0))
+	eds := v1.EventDataSet{
+		Data: make([]*v1.EventRequest, 0, len(events)),
+	}
 	for _, event := range events {
 		eds.Data = append(eds.Data, getEvent(event))
 	}
-	return eds, nil
+	return &eds, nil
 }
 
 func getEvent(event domain.Event) *v1.EventRequest {

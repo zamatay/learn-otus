@@ -3,9 +3,8 @@ package app
 import (
 	"context"
 	"errors"
-	"flag"
+	memorystorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/memory"
 	"io"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -13,7 +12,6 @@ import (
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
-	memorystorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
@@ -67,17 +65,6 @@ func (a *App) AddClosers(closer io.Closer) {
 	a.closers = append(a.closers, closer)
 }
 
-func (a *App) LoadConfig() {
-	var configFile string
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
-	flag.Parse()
-
-	if flag.Arg(0) == "version" {
-		PrintVersion()
-		os.Exit(1)
-	}
-}
-
 func (a *App) Init(ctx context.Context) {
 	//a.LoadConfig()
 	storage := getStorage(ctx, a.Config)
@@ -93,12 +80,10 @@ func (a *App) Closers() []io.Closer {
 
 func getStorage(ctx context.Context, cfg *configs.Config) CLoserStorage {
 	switch cfg.DB.Driver {
-	case "inMemory":
-		return memorystorage.New()
 	case "postgresql":
 		return sqlstorage.New(ctx, &cfg.DB)
 	default:
-		Calendar.Logger.Fatal("Неизвестный драйвер")
+		return memorystorage.New()
 	}
 	return nil
 }

@@ -42,10 +42,11 @@ func (s Storage) RemoveEvent(id int64) error {
 func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	result := make([]domain.Event, initialSize)
+	result := make([]domain.Event, 0, initialSize)
 	for _, event := range s.storage {
 		if (event.Date.After(beginDate) && event.Date.Before(endDate)) ||
-			(event.Date.Add(event.DateInterval).After(beginDate) && event.Date.Add(event.DateInterval).Before(endDate)) {
+			(event.Date.Add(event.DateInterval).After(beginDate) && event.Date.Add(event.DateInterval).Before(endDate)) ||
+			(event.Date.Equal(beginDate)) {
 			result = append(result, event)
 		}
 	}
