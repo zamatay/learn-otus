@@ -1,9 +1,10 @@
 package memorystorage
 
 import (
-	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"sync"
 	"time"
+
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 )
 
 const initialSize = 100
@@ -24,7 +25,7 @@ func (s Storage) AddEvent(event domain.Event) error {
 	return nil
 }
 
-func (s Storage) EditEvent(id int64, event domain.Event) error {
+func (s Storage) EditEvent(_ int64, event domain.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.storage[event.ID] = event
@@ -41,10 +42,11 @@ func (s Storage) RemoveEvent(id int64) error {
 func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	result := make([]domain.Event, initialSize)
+	result := make([]domain.Event, 0, initialSize)
 	for _, event := range s.storage {
 		if (event.Date.After(beginDate) && event.Date.Before(endDate)) ||
-			(event.Date.Add(event.DateInterval).After(beginDate) && event.Date.Add(event.DateInterval).Before(endDate)) {
+			(event.Date.Add(event.DateInterval).After(beginDate) && event.Date.Add(event.DateInterval).Before(endDate)) ||
+			(event.Date.Equal(beginDate)) {
 			result = append(result, event)
 		}
 	}

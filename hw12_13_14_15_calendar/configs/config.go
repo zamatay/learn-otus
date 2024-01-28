@@ -2,14 +2,15 @@ package configs
 
 import (
 	"errors"
-	"flag"
-	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type HTTP struct {
-	Host string `yaml:"host"`
+	Host string `yaml:"host" env-default:"http://localhost"`
 	Port string `yaml:"port"`
 }
 
@@ -18,6 +19,11 @@ type Config struct {
 	Log    LoggerConfig `yaml:"logger"`
 	DB     DBConfig     `yaml:"db"`
 	HTTP   HTTP         `yaml:"http"`
+	Grpc   Grpc         `yaml:"grpc"`
+}
+
+type Grpc struct {
+	Port int
 }
 
 type LoggerConfig struct {
@@ -37,7 +43,7 @@ const defaultConfig = "./configs/config.yaml"
 func NewConfig() *Config {
 	configPath, err := fetchConfigPath()
 	if err != nil {
-		log.Fatal(err)
+		return &Config{}
 	}
 
 	var cfg Config
@@ -50,9 +56,14 @@ func NewConfig() *Config {
 
 func fetchConfigPath() (string, error) {
 	var res string
-	if flag.Lookup("config") == nil {
-		flag.StringVar(&res, "config", "", "path to config file")
-		flag.Parse()
+	for i := 0; i < len(os.Args); i++ {
+		if strings.HasPrefix(strings.ToLower(os.Args[i]), "-config") {
+			t := strings.Split(os.Args[i], "=")
+			if len(t) > 1 {
+				res = t[1]
+				return res, nil
+			}
+		}
 	}
 
 	if res == "" {

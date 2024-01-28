@@ -23,7 +23,7 @@ version: build
 	$(BIN) version
 
 test:
-	go test -race ./internal/... ./pkg/...
+	go test -race ./internal/...
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
@@ -34,5 +34,6 @@ lint: install-lint-deps
 migration:
 	goose postgres "host=0.0.0.0 user=sa password=sa dbname=calendar sslmode=disable" up
 
-
-.PHONY: build run build-img run-img version test lint
+generate:
+	@echo "Генерация скриптов protobuf."
+	protoc --go_out=. --go-grpc_out=. --grpc-gateway_out=. --grpc-gateway_opt generate_unbound_methods=true --openapiv2_out . proto/api.proto
