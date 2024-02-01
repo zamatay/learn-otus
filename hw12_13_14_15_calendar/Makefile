@@ -1,5 +1,6 @@
 BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
+MIGRATION_PATH="./migrations"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -8,7 +9,7 @@ build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build
-	$(BIN) -config ./configs/config.toml
+	$(BIN) -config ./configs/config.yaml
 
 build-img:
 	docker build \
@@ -32,8 +33,12 @@ lint: install-lint-deps
 	golangci-lint run ./...
 
 migration:
-	goose postgres "host=0.0.0.0 user=sa password=sa dbname=calendar sslmode=disable" up
+	goose -dir $(MIGRATION_PATH) postgres "host=0.0.0.0 user=sa password=sa dbname=calendar sslmode=disable" up
 
 generate:
 	@echo "Генерация скриптов protobuf."
 	protoc --go_out=. --go-grpc_out=. --grpc-gateway_out=. --grpc-gateway_opt generate_unbound_methods=true --openapiv2_out . proto/api.proto
+container:
+	@echo "Запуск контейнеров"
+	docker-compose -f deployments/docker-compose.yaml up
+

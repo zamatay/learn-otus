@@ -5,21 +5,38 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
+
+var cfg = &Config{}
+var once = sync.Once{}
 
 type HTTP struct {
 	Host string `yaml:"host" env-default:"http://localhost"`
 	Port string `yaml:"port"`
 }
 
+type Broker struct {
+	Url      string `yaml:"url"`
+	Login    string `yaml:"login"`
+	Password string `yaml:"password"`
+}
+
+type Schedule struct {
+	Interval time.Duration `yaml:"interval"`
+}
+
 type Config struct {
-	DevEnv string       `yaml:"env" env-default:"local"`
-	Log    LoggerConfig `yaml:"logger"`
-	DB     DBConfig     `yaml:"db"`
-	HTTP   HTTP         `yaml:"http"`
-	Grpc   Grpc         `yaml:"grpc"`
+	DevEnv   string       `yaml:"env" env-default:"local"`
+	Log      LoggerConfig `yaml:"logger"`
+	DB       DBConfig     `yaml:"db"`
+	HTTP     HTTP         `yaml:"http"`
+	Grpc     Grpc         `yaml:"grpc"`
+	Broker   Broker       `yaml:"broker"`
+	Schedule Schedule     `yaml:"schedule"`
 }
 
 type Grpc struct {
@@ -27,7 +44,7 @@ type Grpc struct {
 }
 
 type LoggerConfig struct {
-	Level string `yaml:"level" env-default: "string"`
+	Level string `yaml:"level" env-default:"string"`
 }
 
 type DBConfig struct {
@@ -36,22 +53,30 @@ type DBConfig struct {
 	Port     int    `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
+	DB       string `yaml:"db"`
+	AppName  string `yaml:"appName"`
 }
 
 const defaultConfig = "./configs/config.yaml"
+
+func Configs() *Config {
+	once.Do(func() {
+		cfg = NewConfig()
+	})
+	return cfg
+}
 
 func NewConfig() *Config {
 	configPath, err := fetchConfigPath()
 	if err != nil {
 		return &Config{}
 	}
-
-	var cfg Config
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+	log.Print(os.Getwd())
+	if err := cleanenv.ReadConfig(configPath, cfg); err != nil {
 		log.Fatal(err)
 	}
 
-	return &cfg
+	return cfg
 }
 
 func fetchConfigPath() (string, error) {

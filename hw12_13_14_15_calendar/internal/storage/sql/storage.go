@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/domain"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
@@ -44,12 +45,16 @@ type Storage struct {
 	prepareSql prepare
 }
 
-func New(ctx context.Context, cfg *configs.DBConfig) *Storage {
-	connectionString := fmt.Sprintf(
-		cfg.Host, cfg.Port, cfg.User, cfg.Password)
+func New(ctx context.Context, cfg *configs.DBConfig) (*Storage, error) {
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable application_name=%s",
+		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DB, cfg.AppName)
 	conn, err := sqlx.Open(cfg.Driver, connectionString)
 	if err != nil {
-		return nil
+		return nil, err
+	}
+	if err := conn.PingContext(ctx); err != nil {
+		logger.Logger().Error("Ошибка при инициализации БД", "error", err.Error())
+		return nil, err
 	}
 	pSql := prepare{
 		AddEvent:    PrepareItem{stmt: nil, sql: sqlAddEvent},
@@ -62,7 +67,7 @@ func New(ctx context.Context, cfg *configs.DBConfig) *Storage {
 		connect:    conn,
 		ctx:        ctx,
 		prepareSql: pSql,
-	}
+	}, nil
 }
 
 func (s Storage) prepare(item *PrepareItem) error {
@@ -70,7 +75,7 @@ func (s Storage) prepare(item *PrepareItem) error {
 		var err error
 		item.stmt, err = s.connect.Preparex(item.sql)
 		if err != nil {
-			logger.GetLog().Error("Ошибка при подготовки запроса", err)
+			logger.Logger().Error("Ошибка при подготовки запроса", err)
 			return err
 		}
 	}
