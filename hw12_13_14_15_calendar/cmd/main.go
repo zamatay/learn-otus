@@ -19,7 +19,7 @@ func main() {
 	app.Calendar.AddClosers(server)
 
 	//Shutdown
-	quit := app.Calendar.Shutdown(ctx, app.Calendar.Closers())
+	quit := app.Shutdown(ctx, app.Calendar.Closers())
 
 	if err := server.Start(ctx); err != nil {
 		app.Calendar.Logger.Error("failed to start http server: " + err.Error())

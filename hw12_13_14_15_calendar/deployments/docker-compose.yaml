@@ -5,8 +5,8 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_DB: "calendar"
-      POSTGRES_USER: "sa"
-      POSTGRES_PASSWORD: "sa"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
     ports:
       - "5432:5432"
   rabbitmq:

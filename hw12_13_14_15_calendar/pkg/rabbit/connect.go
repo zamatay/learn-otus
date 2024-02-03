@@ -4,31 +4,61 @@ import (
 	"context"
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/configs"
 	"github.com/zamatay/learn-otus/hw12_13_14_15_calendar/internal/logger"
+	"time"
 )
 
 type funcClose = func()
 
-type Rabbited interface {
+type ProduceRabbited interface {
 	SendMessage(ctx context.Context, text string)
 }
 
-type Rabbit struct {
-	connection *amqp.Connection
-	chanel     *amqp.Channel
-	queue      amqp.Queue
-	closers    []funcClose
+type ConsumerRabbited interface {
+	GetMessage(ctx context.Context) error
 }
 
-func NewRabbit(login string, password string, url string) (*Rabbit, error) {
+type Rabbit struct {
+	ReadInterval time.Duration
+	connection   *amqp.Connection
+	chanel       *amqp.Channel
+	queue        amqp.Queue
+	closers      []funcClose
+	queueName    string
+}
+
+func (r *Rabbit) GetMessage(ctx context.Context) error {
+	messages, err := r.chanel.Consume(r.queueName, "", true, false, false, false, nil)
+	if err != nil {
+		logger.Logger().Error("Ошибка при получении сообщения", "Error", err.Error())
+		return err
+	}
+
+	var forever chan struct{}
+
+	go func() {
+		for message := range messages {
+			logger.Logger().Info("received a message: %s", message.Body)
+		}
+	}()
+
+	logger.Logger().Info(" [*] Waiting for messages. To exit press CTRL+C")
+
+	<-forever
+	return nil
+}
+
+func NewRabbit(config *configs.Broker) (*Rabbit, error) {
 	r := &Rabbit{}
-	_, err := r.Connect(login, password, url)
+	r.queueName = "work"
+	_, err := r.Connect(config.Login, config.Password, config.Url)
 	if err != nil {
 		return nil, err
 	}
-
+	r.ReadInterval = config.ReadInterval
 	r.CreateChannel()
-	r.CreateQueue("work")
+	r.CreateQueue(r.queueName)
 	return r, nil
 }
 

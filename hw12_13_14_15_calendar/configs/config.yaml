@@ -4,8 +4,8 @@ db:
   driver: "postgres"
   host: "0.0.0.0"
   port: 5432
-  user: "sa"
-  password: "sa"
+  user: "postgres"
+  password: "postgres"
   db: "calendar"
   appName: "Calendar"
 http:
@@ -19,3 +19,4 @@ broker:
   url: "0.0.0.0:5672"
   login: "admin"
   password: "555555"
+  readInterval: "10s"

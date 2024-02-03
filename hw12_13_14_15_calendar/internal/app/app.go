@@ -89,7 +89,7 @@ func getStorage(ctx context.Context, cfg *configs.Config) CLoserStorage {
 	return nil
 }
 
-func (a *App) Shutdown(ctx context.Context, closers []io.Closer) chan struct{} {
+func Shutdown(ctx context.Context, closers []io.Closer) chan struct{} {
 	quit := make(chan struct{})
 	go func() {
 		select {

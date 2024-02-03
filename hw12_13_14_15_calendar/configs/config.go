@@ -20,9 +20,10 @@ type HTTP struct {
 }
 
 type Broker struct {
-	Url      string `yaml:"url"`
-	Login    string `yaml:"login"`
-	Password string `yaml:"password"`
+	Url          string        `yaml:"url"`
+	Login        string        `yaml:"login"`
+	Password     string        `yaml:"password"`
+	ReadInterval time.Duration `yaml:"readInterval"`
 }
 
 type Schedule struct {

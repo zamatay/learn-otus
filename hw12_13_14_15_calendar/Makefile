@@ -33,7 +33,7 @@ lint: install-lint-deps
 	golangci-lint run ./...
 
 migration:
-	goose -dir $(MIGRATION_PATH) postgres "host=0.0.0.0 user=sa password=sa dbname=calendar sslmode=disable" up
+	goose -dir $(MIGRATION_PATH) postgres "host=0.0.0.0 user=postgres password=postgres dbname=calendar sslmode=disable" up
 
 generate:
 	@echo "Генерация скриптов protobuf."

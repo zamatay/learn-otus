@@ -18,7 +18,7 @@ func main() {
 
 	//создали брокер сообщений
 	cfg := configs.Configs()
-	newRabbit, err := rabbit.NewRabbit(cfg.Broker.Login, cfg.Broker.Password, cfg.Broker.Url)
+	newRabbit, err := rabbit.NewRabbit(&cfg.Broker)
 	if err != nil {
 		logger.Logger().Error("Ошибка при подключении к БД", "Error", err.Error())
 		os.Exit(1)
@@ -48,5 +48,8 @@ func main() {
 		logger.Logger().Error("Ошибка при запуске джоба", "Error", err.Error())
 	}
 
-	logger.Logger().Info("Сервис Scheduler стартовал")
+	quit := app.Shutdown(ctx, app.Calendar.Closers())
+
+	<-quit
+
 }

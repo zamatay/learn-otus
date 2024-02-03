@@ -10,7 +10,7 @@ import (
 
 type Service struct {
 	repo   sqlstorage.Scheduler
-	broker rabbit.Rabbited
+	broker rabbit.ProduceRabbited
 }
 
 func NewService(repo sqlstorage.Scheduler, broker *rabbit.Rabbit) *Service {
