@@ -17,7 +17,7 @@ func Connect(ctx context.Context, cfg *configs.DBConfig) (*sqlx.DB, func(), erro
 	}
 	if err := conn.PingContext(ctx); err != nil {
 		logger.Logger().Error("Ошибка при инициализации БД", "error", err.Error())
-		return nil, nil, err
+		return conn, nil, err
 	}
 
 	closer := func() {
