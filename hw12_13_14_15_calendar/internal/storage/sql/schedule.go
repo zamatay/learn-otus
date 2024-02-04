@@ -9,33 +9,22 @@ import (
 )
 
 const sqlGetEventByDate = `SELECT id, title, date, date_interval, description, user_id FROM calendar where date > $1`
-const sqlSetEventByDate = `insert into calendar(id, title, date, date_interval, description, user_id)
-							values (1, 'Тестовый заголовок', now(), 100, 'Тестовое описание', 0)`
 
 type Scheduler interface {
-	GetNew(ctx context.Context) ([]domain.Event, error)
-	InsertData(ctx context.Context)
+	GetNew(ctx context.Context, dt time.Time) ([]domain.Event, error)
 }
 
 type Schedule struct {
-	dt      time.Time
 	db      *sqlx.DB
 	prepare *sqlx.Stmt
 }
 
-func (s Schedule) InsertData(ctx context.Context) {
-	_, err := s.db.ExecContext(ctx, sqlSetEventByDate)
-	if err != nil {
-		logger.Logger().Error("Не удалось вставить данные для теста")
-	}
-}
-func (s Schedule) GetNew(ctx context.Context) ([]domain.Event, error) {
+func (s Schedule) GetNew(ctx context.Context, dt time.Time) ([]domain.Event, error) {
 	var event []domain.Event //:= make([]domain.Event, 0, 0)
-	if err := s.prepare.SelectContext(ctx, &event, s.dt); err != nil {
+	if err := s.prepare.SelectContext(ctx, &event, dt); err != nil {
 		logger.Logger().Error("Ошибка при получении данных в шедулере", "Error", err.Error())
 		return nil, err
 	}
-	s.dt = time.Now()
 	return event, nil
 }
 
@@ -44,9 +33,6 @@ func NewSchedule(db *sqlx.DB) (*Schedule, error) {
 	if err != nil {
 		logger.Logger().Error("Ошибка при подготвоке запроса", "Error", err.Error())
 		return nil, err
-	}
-	if _, err := db.Exec(sqlSetEventByDate); err != nil {
-		logger.Logger().Error("Не удалось вставить данные для теста")
 	}
 	return &Schedule{db: db, prepare: prepare}, nil
 }

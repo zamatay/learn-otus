@@ -38,7 +38,9 @@ migration:
 generate:
 	@echo "Генерация скриптов protobuf."
 	protoc --go_out=. --go-grpc_out=. --grpc-gateway_out=. --grpc-gateway_opt generate_unbound_methods=true --openapiv2_out . proto/api.proto
-container:
+container_up:
 	@echo "Запуск контейнеров"
 	docker-compose -f deployments/docker-compose.yaml up
-
+container_down:
+	@echo "Остановке контейнеров"
+	docker-compose -f deployments/docker-compose.yaml down
