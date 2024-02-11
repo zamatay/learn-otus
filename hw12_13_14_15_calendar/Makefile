@@ -44,3 +44,5 @@ container_up:
 container_down:
 	@echo "Остановке контейнеров"
 	docker-compose -f deployments/docker-compose.yaml down
+cmt:
+	git commit --allow-empty -m"Trigger pipelines"
