@@ -21,6 +21,7 @@ func init() {
 	server = NewServer(ctx, configs.Grpc{Port: 44044}, configs.HTTP{Port: "8080"})
 }
 
+//gocognit:ignore
 func TestServer_AddEvent(t *testing.T) {
 	ti := time.Now()
 	tests := []struct {
