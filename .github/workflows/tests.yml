@@ -16,8 +16,7 @@ jobs:
 
       - name: Display path
         run: |
-          echo "Current directory: $PWD"|
-          echo "GITHUB_ENV: $GITHUB_ENV"
+          echo "Current directory: $PWD"
 
       - name: Set up Go
         uses: actions/setup-go@v3
