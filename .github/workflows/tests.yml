@@ -14,7 +14,7 @@ jobs:
       - name: Extract branch name
         run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
-      - name: Display path 1
+      - name: Display path
         run: |
         echo "Current directory: $PWD"  # Display current directory path
 
