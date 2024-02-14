@@ -15,10 +15,12 @@ jobs:
         run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
       - name: Display path 1
-        run: echo "Current directory: $PWD"
+        run: |
+        echo "Current directory: $PWD"  # Display current directory path
 
       - name: Display path 2
-        run: echo "Path: $GITHUB_ENV"
+        run: |
+        echo "Path: $GITHUB_ENV"
 
       - name: Set up Go
         uses: actions/setup-go@v3
