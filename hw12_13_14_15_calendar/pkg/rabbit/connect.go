@@ -123,7 +123,7 @@ func (r *Rabbit) SendMessage(ctx context.Context, text string) {
 	}
 }
 
-func (r Rabbit) Close() error {
+func (r *Rabbit) Close() error {
 	for _, fn := range r.closers {
 		fn()
 	}
