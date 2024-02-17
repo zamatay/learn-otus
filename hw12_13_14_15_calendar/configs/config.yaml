@@ -1,13 +1,22 @@
 logger:
   level: "info"
 db:
-  driver: "inMemory"
+  driver: "postgres"
   host: "0.0.0.0"
   port: 5432
-  user: "sa"
-  password: "sa"
+  user: "postgres"
+  password: "postgres"
+  db: "calendar"
+  appName: "Calendar"
 http:
   host: "0.0.0.0"
   port: "8080"
 grpc:
   port: 44044
+schedule:
+  interval: "10s"
+broker:
+  url: "0.0.0.0:5672"
+  login: "admin"
+  password: "555555"
+  readInterval: "10s"

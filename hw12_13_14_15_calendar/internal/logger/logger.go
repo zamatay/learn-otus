@@ -6,17 +6,20 @@ import (
 	"os"
 )
 
-type Logger struct {
-	Log *slog.Logger // TODO
+type Log struct {
+	Log *slog.Logger
 }
 
-var logger *Logger
+var logger *Log
 
-func GetLog() *Logger {
+func Logger() *Log {
+	if logger == nil {
+		logger = New("info")
+	}
 	return logger
 }
 
-func New(level string) *Logger {
+func New(level string) *Log {
 	var l slog.Level
 	switch level {
 	case "debug":
@@ -28,29 +31,29 @@ func New(level string) *Logger {
 	default:
 		l = slog.LevelError
 	}
-	logger = &Logger{
+	logger = &Log{
 		Log: slog.New(
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: l})),
 	}
 	return logger
 }
 
-func (l Logger) Debug(msg string, args ...any) {
+func (l Log) Debug(msg string, args ...any) {
 	l.Log.Debug(msg, args...)
 }
 
-func (l Logger) Info(msg string, args ...any) {
+func (l Log) Info(msg string, args ...any) {
 	l.Log.Info(msg, args...)
 }
 
-func (l Logger) Error(msg string, args ...any) {
+func (l Log) Error(msg string, args ...any) {
 	l.Log.Error(msg, args...)
 }
 
-func (l Logger) Warn(msg string, args ...any) {
+func (l Log) Warn(msg string, args ...any) {
 	l.Log.Warn(msg, args...)
 }
 
-func (l Logger) Fatal(msg string) {
+func (l Log) Fatal(msg string) {
 	log.Fatal(msg)
 }
