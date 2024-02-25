@@ -49,8 +49,7 @@ cmt:
 
 integration-test:
 	set -e ;\
-    docker-compose -f ./deployments/docker-compose-test.yaml up --build -d ;\
     test_status_code=0 ;\
-    docker-compose -f ./deployments/docker-compose-test.yaml run || test_status_code=$$? ;\
+    docker-compose -f ./deployments/docker-compose-test.yaml up --build -d || test_status_code=$$? ;\
     docker-compose -f ./deployments/docker-compose-test.yaml down ;\
     exit $$test_status_code ;\
