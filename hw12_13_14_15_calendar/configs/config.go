@@ -2,6 +2,7 @@ package configs
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -72,11 +73,10 @@ func NewConfig() *Config {
 	if err != nil {
 		return &Config{}
 	}
-	log.Print(os.Getwd())
 	if err := cleanenv.ReadConfig(configPath, cfg); err != nil {
 		log.Fatal(err)
 	}
-
+	fmt.Println(cfg)
 	return cfg
 }
 

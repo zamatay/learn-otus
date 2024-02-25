@@ -1,5 +1,5 @@
 # Собираем в гошке
-FROM golang:1.2 as build
+FROM golang:1.22.0-bookworm as build
 
 ENV BIN_FILE /opt/calendar/calendar-app
 ENV BIN_FILE_SCHEDULER /opt/calendar/calendar-scheduler
@@ -29,7 +29,7 @@ RUN CGO_ENABLED=0 gen build \
         -o ${BIN_FILE_SENDER} cmd/main.go
 
 # На выходе тонкий образ
-FROM alpine:latest
+FROM debian:bookworm
 
 LABEL ORGANIZATION="OTUS Online Education"
 LABEL SERVICE="calendar"

@@ -80,7 +80,7 @@ func (a *App) Closers() []io.Closer {
 
 func getStorage(ctx context.Context, cfg *configs.Config) CLoserStorage {
 	switch cfg.DB.Driver {
-	case "postgresql":
+	case "postgres":
 		storage, _ := sqlstorage.New(ctx, &cfg.DB)
 		return storage
 	default:

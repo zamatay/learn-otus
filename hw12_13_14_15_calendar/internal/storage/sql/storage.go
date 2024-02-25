@@ -16,14 +16,14 @@ import (
 const (
 	sqlAddEvent = `
 	INSERT INTO calendar(title, date, date_interval, description, user_id)
-	VALUES (@title, @date, @date_interval, @description, @user_id)`
+	VALUES ($1, $2, $3, $4, $5)`
 	sqlUpdateEvent = `
-	UPDATE calendar SET title = @title, date = @date, date_interval = @date_interval, 
-	                    description = @description, user_id= @user_id
-	WHERE id = @id`
-	sqlRemoveEvent = `DELETE FROM calendar where id = @id`
-	sqlListEvent   = `SELECT id, title, date, date_interval, description, user_id FROM calendar where date between @date1 and @date2`
-	sqlGetEvent    = `SELECT id, title, date, date_interval, description, user_id FROM calendar where id=@id`
+	UPDATE calendar SET title = $1, date = $2, date_interval = $3, 
+	                    description = $4, user_id= $5
+	WHERE id = $6`
+	sqlRemoveEvent = `DELETE FROM calendar where id = $1`
+	sqlListEvent   = `SELECT id, title, date, date_interval, description, user_id FROM calendar where date between $1 and $2`
+	sqlGetEvent    = `SELECT id, title, date, date_interval, description, user_id FROM calendar where id=$1`
 )
 
 type PrepareItem struct {
@@ -100,14 +100,11 @@ func (s Storage) EditEvent(_ int64, event domain.Event) error {
 	if err := s.prepare(&s.prepareSql.EditEvent); err != nil {
 		return err
 	}
-	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
-		sql.Named("title", event.Title),
-		sql.Named("date", event.Date),
-		sql.Named("date_interval", event.DateInterval),
-		sql.Named("description", event.Description),
-		sql.Named("user_id", event.UserID),
-		sql.Named("id", event.ID),
-	)
+	if _, err := s.prepareSql.EditEvent.stmt.ExecContext(s.ctx, event.Title, event.Date, event.DateInterval, event.Description,
+		event.UserID, event.ID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -115,9 +112,9 @@ func (s Storage) RemoveEvent(id int64) error {
 	if err := s.prepare(&s.prepareSql.RemoveEvent); err != nil {
 		return err
 	}
-	s.prepareSql.EditEvent.stmt.ExecContext(s.ctx,
-		sql.Named("id", id),
-	)
+	if _, err := s.prepareSql.RemoveEvent.stmt.ExecContext(s.ctx, sql.Named("id", id)); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -126,21 +123,32 @@ func (s Storage) List(beginDate time.Time, endDate time.Time) []domain.Event {
 		return nil
 	}
 	list := make([]domain.Event, 0, 0)
-	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &list,
+	rows, err := s.prepareSql.ListEvent.stmt.QueryContext(s.ctx,
 		sql.Named("date1", beginDate),
 		sql.Named("date2", endDate),
 	)
+	if err != nil {
+		return nil
+	}
+	value := domain.Event{}
+	for rows.Next() {
+		err := rows.Scan(&value.ID, &value.Title, &value.Date, &value.DateInterval, &value.Description, &value.UserID)
+		if err != nil {
+			continue
+		}
+		list = append(list, value)
+	}
 	return list
 }
 
 func (s Storage) GetEvent(id int64) (domain.Event, error) {
-	if err := s.prepare(&s.prepareSql.ListEvent); err != nil {
+	if err := s.prepare(&s.prepareSql.GetEvent); err != nil {
 		return domain.Event{}, err
 	}
 	value := domain.Event{}
-	s.prepareSql.EditEvent.stmt.GetContext(s.ctx, &value,
-		sql.Named("id", id),
-	)
+	if err := s.prepareSql.GetEvent.stmt.GetContext(s.ctx, &value, id); err != nil {
+		return value, err
+	}
 	return value, nil
 }
 

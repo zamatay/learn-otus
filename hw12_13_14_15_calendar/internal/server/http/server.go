@@ -38,13 +38,18 @@ func (server *Server) AddEvent(ctx context.Context, request *v1.EventRequest) (*
 
 func (server *Server) EditEvent(ctx context.Context, request *v1.EventRequest) (*v1.OkResponse, error) {
 	event := *domain.NewEvent(request.ID, request.UserID, request.Title, request.Description, request.DateInterval, request.Date)
-	app.Calendar.Storage.EditEvent(event.ID, event)
-	return &v1.OkResponse{}, nil
+	err := app.Calendar.Storage.EditEvent(event.ID, event)
+	if err != nil {
+		return &v1.OkResponse{IsOk: false}, nil
+	}
+	return &v1.OkResponse{IsOk: true}, nil
 }
 
 func (server *Server) RemoveEvent(ctx context.Context, request *v1.IdRequest) (*v1.OkResponse, error) {
-	app.Calendar.Storage.RemoveEvent(request.Id)
-	return &v1.OkResponse{}, nil
+	if err := app.Calendar.Storage.RemoveEvent(request.Id); err != nil {
+		return &v1.OkResponse{IsOk: false}, nil
+	}
+	return &v1.OkResponse{IsOk: true}, nil
 }
 
 func (server *Server) List(ctx context.Context, request *v1.DateRequest) (*v1.EventDataSet, error) {
@@ -64,12 +69,13 @@ func getEvent(event domain.Event) *v1.EventRequest {
 }
 
 func (server *Server) GetEvent(ctx context.Context, request *v1.IdRequest) (er *v1.EventRequest, err error) {
+	v := v1.EventRequest{}
 	if event, err := app.Calendar.Storage.GetEvent(request.Id); err != nil {
 		app.Calendar.Logger.Error("Ошибка при получении GetEvent", err)
 	} else {
-		er = getEvent(event)
+		v = *getEvent(event)
 	}
-	return er, nil
+	return &v, nil
 }
 
 func (server *Server) runRest(ctx context.Context) {
