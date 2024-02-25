@@ -19,4 +19,4 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=build /app/test /app/test
 
-RUN "./test"
+CMD ["./test"]
