@@ -68,7 +68,7 @@ func (r *Rabbit) Connect(login string, password string, url string) (*amqp.Conne
 	r.connection, err = amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s/", login, password, url)) // Создаем подключение к RabbitMQ
 	if err != nil {
 		logger.Logger().Error("не смог подключиться к RabbitMQ", "Error", err.Error())
-		return nil, nil
+		return nil, err
 	}
 
 	fnClose := func() {

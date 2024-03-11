@@ -20,13 +20,13 @@ func main() {
 	cfg := configs.Configs()
 	newRabbit, err := rabbit.NewRabbit(&cfg.Broker)
 	if err != nil {
-		logger.Logger().Error("Ошибка при подключении к БД", "Error", err.Error())
+		logger.Logger().Error("Ошибка при подключении к брокеру сообщений", "Error", err.Error())
 		os.Exit(1)
 	}
 	defer newRabbit.Close()
 
 	//подключились к базе
-	connect, dbCloser, err := pgsql.Connect(ctx, &configs.Configs().DB)
+	connect, dbCloser, err := pgsql.Connect(ctx, &cfg.DB)
 	if err != nil {
 		logger.Logger().Error("Ошибка при подключении к БД", "Error", err.Error())
 		os.Exit(1)

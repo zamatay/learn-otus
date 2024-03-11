@@ -2,7 +2,7 @@ logger:
   level: "info"
 db:
   driver: "postgres"
-  host: "postgres"
+  host: "0.0.0.0"
   port: 5432
   user: "postgres"
   password: "postgres"
@@ -16,8 +16,7 @@ grpc:
 schedule:
   interval: "10s"
 broker:
-  url: "rabbitmq:5672"
-#  url: "0.0.0.0:5672"
+  url: "0.0.0.0:5672"
   login: "admin"
   password: "555555"
   readInterval: "10s"

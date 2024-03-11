@@ -5,17 +5,17 @@ MIGRATION_PATH="./migrations"
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
-
 run: build
 	$(BIN) -config ./configs/config.yaml
 
-build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+dc-build:
+	/usr/bin/docker compose -f ./deployments/docker-compose.yaml -p deployments build
+
+up:
+	/usr/bin/docker compose -f ./deployments/docker-compose.yaml -p deployments up -d
+
+down:
+	/usr/bin/docker compose -f ./deployments/docker-compose.yaml -p deployments down
 
 run-img: build-img
 	docker run $(DOCKER_IMG)
@@ -46,3 +46,10 @@ container_down:
 	docker-compose -f deployments/docker-compose.yaml down
 cmt:
 	git commit --allow-empty -m"Trigger pipelines"
+
+integration-test:
+	set -e ;\
+    test_status_code=0 ;\
+    docker-compose -f ./deployments/docker-compose-test.yaml up --build -d || test_status_code=$$? ;\
+    docker-compose -f ./deployments/docker-compose-test.yaml down ;\
+    exit $$test_status_code ;\

@@ -1,5 +1,15 @@
 version: "3"
 services:
+  integration_tests:
+    container_name: calendar_tests
+    build:
+      context: ..
+      dockerfile: ./deployments/docker/test/Dockerfile
+    depends_on:
+      - calendar
+      - scheduler
+      - sender
+
   calendar:
     container_name: calendar
     build:
